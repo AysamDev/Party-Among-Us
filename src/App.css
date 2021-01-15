@@ -1,38 +1,53 @@
-.App {
-  text-align: center;
+.roomGrid{
+  height: 90vh;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-gap: 1vw;
+  margin: 1vh 1vw;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#header{
+  height: 8vh;
+  background-color: pink;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+#board{
+  border: solid lightgray 0.1vw;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+#sideMenu{
+  border: solid lightgray 0.1vw;
+  display: grid;
+  grid-template-rows: 2fr 5fr 1fr 1fr;
+  grid-gap: 1vh;
 }
 
-.App-link {
-  color: #61dafb;
+#sideMenu > *{
+  border: solid black 0.1vw;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+#home{
+  display: grid;
+  grid-template-rows: 1fr 9fr;
+  grid-gap: 1vh;
+  margin: 1vh;
+  height: 90vh;
+}
+
+#landingActions{
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  grid-gap: 1vw;
+}
+
+#landingActions > *{
+  border: black 0.1vw solid;
+}
+
+#createRoom{
+  height: 10vh;
+}
+
+#userInfo{
+  padding: 1vh;
 }
