@@ -10,7 +10,7 @@ const roomSchema = new Schema({
     tags: [String],
     queue: [Object],
     theme: String, 
-    hotsPassword: String,
+    hostPassword: String,
     size: Number
 })
 

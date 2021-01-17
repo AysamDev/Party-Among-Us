@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Redirect} from 'react-router-dom'
 import './App.css'
 import Home from "./components/Home";
 import Room from "./components/Room";
+import { observer, inject } from 'mobx-react'
 
 function App() {
   return (
@@ -11,10 +12,10 @@ function App() {
         <div id="header">logo</div>
         <Route path="/Home" exact render={() => <Home />} />
         <Route exact path="/"><Redirect to="/home" /></Route>
-        <Route path="/room/:id" exact render={() => <Room  />} />
+        <Route path="/room/:id" exact render={() => <Room />} />
       </Router>
     </div>
   )
 }
 
-export default App
+export default inject("UserStore")(observer(App))
