@@ -24,10 +24,10 @@ function SuggestSong(props) {
 
     const clickEvent = async (event) => {
         const {id, dataset, innerHTML} = event.target
-        // console.log(id)
         // console.log(dataset.channel)
-        // console.log(innerHTML)
-        await props.UserStore.suggestSong(id, innerHTML ,1)
+        await props.UserStore.getRoom()
+        const ifPreviouslyAdded = props.UserStore.room.queue.find(q => q.id === id)
+        ifPreviouslyAdded ? props.UserStore.addLike(id) : await props.UserStore.suggestSong(id, innerHTML)
         handleClose()
     }
 

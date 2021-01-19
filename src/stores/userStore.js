@@ -7,7 +7,6 @@ const ENDPOINT = "http://localhost:4200";
 export class UserStore{
     constructor(){
         this.socket = socketIOClient(ENDPOINT)
-
         this.getRooms()
         
         this.avatars = [
@@ -33,64 +32,25 @@ export class UserStore{
                 src: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg'
             }
         ]
-        // this.rooms = [
-        //     {
-        //         id: 1,
-        //         roomName: 'legends',
-        //         guests: [{username: "shorouq", avatar: 1, id:'1s'}, {username: "ala", avatar: 2, id:'2s'}, {username: "suha", avatar: 3, id:'3s'}, {username: "musa", avatar: 4, id:'4s'}], 
-        //         roomPassword: '1rp',
-        //         host: '1s',
-        //         description: "testing room",
-        //         tags: ["Rock"],
-        //         queue: [{id: 1, song: "someone like you", votes: 3}, {id: 2, song: "no promises", votes: 0} , {id: 3, song: "believer", votes: 2}],
-        //         theme: 'https://images.pexels.com/photos/4173624/pexels-photo-4173624.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500', 
-        //         hostPassword: '1hp',
-        //         size: 10
-        //     },
-        //     {
-        //         id: 2,
-        //         roomName: 'killers',
-        //         guests: [{username: "shorouq", avatar: 1, id:'1s'}, {username: "ala", avatar: 2, id:'2s'}, {username: "suha", avatar: 3, id:'3s'}], 
-        //         roomPassword: '1rp',
-        //         host: '1s',
-        //         description: "testing room",
-        //         tags: ["Classical"],
-        //         queue: [{id: 1, song: "someone like you", votes: 3}, {id: 2, song: "no promises", votes: 0} , {id: 3, song: "believer", votes: 2}],
-        //         theme: 'https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616__340.jpg', 
-        //         hostPassword: '1hp',
-        //         size: 10},
-        //     {
-        //         id: 3,
-        //         roomName: 'heroes',
-        //         guests: [{username: "shorouq", avatar: 1, id:'1s'}, {username: "suha", avatar: 3, id:'3s'}], 
-        //         roomPassword: '1rp',
-        //         host: '1s',
-        //         description: "testing room",
-        //         tags: ["Jazz"],
-        //         queue: [{id: 1, song: "someone like you", votes: 3}, {id: 2, song: "no promises", votes: 0} , {id: 3, song: "believer", votes: 2}],
-        //         theme: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg', 
-        //         hostPassword: '1hp',
-        //         size: 10}
-        // ]
+
         this.rooms = []
         this.room = {}
-
         this.userName = ""
         this.avatar = ""
         makeObservable(this, {
             rooms: observable, //
-            userName: observable,
-            avatar: observable,
-            room: observable,
+            userName: observable,//
+            avatar: observable,//
+            room: observable,//
             createRoom: action,//
             getRoom: action, //
-            getRooms: action,
+            getRooms: action,//
             setRoom: action,//
-            addUser: action,
-            suggestSong: action,
-            LeaveRoom: action,
+            addUser: action,//
+            suggestSong: action,//
+            LeaveRoom: action,//
             addLike: action,
-            deleteRoom: action,
+            deleteRoom: action,//
         })
     }
 
@@ -103,7 +63,7 @@ export class UserStore{
         }
     }
 
-    setRoom(room){
+    async setRoom(room){
         this.room = room
     }
 
@@ -121,10 +81,12 @@ export class UserStore{
         return [...this.rooms].sort(this.compare)
     }
 
-    async addLike(songID){
+    async addLike(songID, unlike){
         try {
-            // const result = await axios.put(`http://localhost:4200/update`)
-             this.room.queue.find(q => q.id === songID).votes += 1
+            const song = this.room.queue.find(q => q.id === songID)
+            song.votes = unlike ? song.votes-1 : song.votes+1
+            const body = { newVal: this.room.queue, field: 'queue'}
+            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`,body)).data
         } catch (error) {
             console.log(error)
         }
@@ -147,19 +109,23 @@ export class UserStore{
         }
     }
 
-    async getRoom(roomID){
+    async getRoom(){
         try {
-            // const result = (await axios.get(`http://localhost:4200/room/${roomID}`)).data
-            // this.room = result
-            this.room = this.rooms.find(r => r.id === roomID)
+            const result = (await axios.get(`http://localhost:4200/room/${this.room._id}`)).data
+            this.room = result
         } catch (error) {
             console.log(error)
         }
     }
 
-    async LeaveRoom(){//remove by socket id 
+    async LeaveRoom(){
         try {       
-            this.room.guests.splice(this.room.guests.findIndex(g => this.userName === g.username),1)
+            const index = this.room.guests.findIndex(g => this.socket.id === g.id)
+            this.room.guests.splice(index,1)
+            const body = {field: 'guests', newVal: this.room.guests}
+            const response = (await axios.put(`http://localhost:4200/room/${this.room._id}`, body)).data
+            this.room = null
+            this.getRooms()
         } catch (error) {
             console.log(error)
         }
@@ -175,9 +141,11 @@ export class UserStore{
         }
     }
 
-    async suggestSong(id, song, votes){
+    async suggestSong(id, song){
         try {
-            this.room.queue.push({id, song, votes})
+            this.room.queue.push({id, song, votes: 1})
+            const newVal= {field: 'queue', newVal: this.room.queue}
+            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`, newVal)).data
         } catch (error) {
             console.log(error)
         }
@@ -193,11 +161,11 @@ export class UserStore{
 
     async addUser(userName, avatar){
         try {
-            // const response = (await axios.put(`http://localhost:4200/update`)).data
-            // this.room = response
             this.userName = userName
             this.avatar = this.avatars.find(a => a.name === avatar)
-            // this.room.guests.push({id: Math.random(), userName, avatar})
+            this.room.guests.push({id: this.socket.id, userName, avatar})
+            const body = {field: 'guests', newVal: this.room.guests}
+            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`, body)).data
         } catch (error) {
             console.log(error)
         }

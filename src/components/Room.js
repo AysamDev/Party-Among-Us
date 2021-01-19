@@ -19,11 +19,22 @@ function Room(props) {
         const roomID = location.pathname.split('/')[2]
         await props.UserStore.getRooms()
         const room = props.UserStore.rooms.find(r => r._id === roomID)
-        props.UserStore.setRoom(room)
-        if(room){
-            setOpen(true)
+        if(room && room.guests.length < room.size){
+            if(room.roomPassword){
+                const password = prompt("Please write the room Password")
+                if(password === room.roomPassword){
+                    props.UserStore.setRoom(room)
+                    setOpen(true)
+                }
+            }else{
+                props.UserStore.setRoom(room)
+                setOpen(true)
+            }
+        }else if(!room){
+            alert("Room is Not Found")
+            history.push("/home")
         }else{
-            alert("room is not found")
+            alert("The Room is Full")
             history.push("/home")
         }
     }

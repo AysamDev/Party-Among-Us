@@ -25,7 +25,6 @@ function UserForm(props) {
     const [userName, setUserName] = useState("")
     const [avatar, setAvatar] = useState("")
     const { enqueueSnackbar } = useSnackbar();
-    
     const avatarOptions = props.UserStore.avatars.map((a, i )=> ({label: a.name, value: i}))
     const openRoom = () => {
         if(!userName || !avatar){
@@ -35,7 +34,7 @@ function UserForm(props) {
             props.open(false)
         }
     }
-    
+
     return (
         <div>
             <Modal
@@ -60,6 +59,7 @@ function UserForm(props) {
                     />
                     <Select 
                         options={avatarOptions} 
+                        placeholder="Select avatar"
                         onChange={event => setAvatar(event  ? event.label: "")} 
                         isClearable="true" id="themeSelect" 
                     />
