@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {TextField, Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
 import { observer, inject } from 'mobx-react'
 import Select from 'react-select'
+import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -23,13 +24,18 @@ function UserForm(props) {
     const classes = useStyles();
     const [userName, setUserName] = useState("")
     const [avatar, setAvatar] = useState("")
-
+    const { enqueueSnackbar } = useSnackbar();
     
     const avatarOptions = props.UserStore.avatars.map((a, i )=> ({label: a.name, value: i}))
     const openRoom = () => {
-        props.UserStore.addUser(userName, avatar)
-        props.open(false)
+        if(!userName || !avatar){
+            enqueueSnackbar('some fields are missing', { variant: 'warning' })
+        }else{
+            props.UserStore.addUser(userName, avatar)
+            props.open(false)
+        }
     }
+    
     return (
         <div>
             <Modal

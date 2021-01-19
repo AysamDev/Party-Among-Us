@@ -25,16 +25,6 @@ function Home(props) {
 
     return (
         <div id="home">
-            {/* <div id="userInfo">
-                <input type="text" placeholder="userName" />
-                <select name="avatars" id="avatars">
-                    <option value="1">avatar 1</option>
-                    <option value="2">avatar 2</option>
-                </select>
-                <Button variant="contained" color="secondary" id="createRoom">
-                    Create Room
-                </Button>
-            </div> */}
             <div id="landingActions"> 
                 <div id="userActions">
                     <TextField id="search" label="Find Room" value={searchInput}
@@ -45,7 +35,7 @@ function Home(props) {
                 </div>
                 <h2>{heading}</h2>
                 <div id="top10">
-                    {rooms.map(r => <RoomResult room={r} key={r.id} id={r.id} />)}
+                    {rooms.map(r => <RoomResult room={r} key={r._id} id={r._id} />)}
                 </div>
             </div>
             {popUp && <CreateRoom open={setPopUp} />} 

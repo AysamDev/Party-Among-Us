@@ -3,6 +3,7 @@ import { observer, inject } from 'mobx-react'
 import {TextField, Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
 import Select from 'react-select'
 
+
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: 'flex',
@@ -41,7 +42,8 @@ function CreateRoom(props) {
     }
 
     const createRoom = () => {
-        props.UserStore.createRoom(roomName, [], roomPassword, '2s', description, tags.map(t=> t.label), queue, theme, 'hostPassword', 10)
+        // props.UserStore.createRoom(roomName, [], roomPassword, '2s', description, tags.map(t=> t.label), queue, theme, 'hostPassword', 10)
+        props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t=> t.label), theme)
         handleClose()
     }
 
