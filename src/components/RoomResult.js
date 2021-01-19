@@ -1,11 +1,13 @@
 import React from 'react'
 import { useHistory } from "react-router-dom";
 import { observer, inject } from 'mobx-react'
+import LockTwoToneIcon from '@material-ui/icons/LockTwoTone';
+
 
 function RoomResult(props) {
-    const { roomName, theme, guests, size, description, tags } = props.room
+    const { roomPassword, roomName, theme, guests, size, description, tags } = props.room
     let history = useHistory()
-
+    
     const openRoom = () => {
         props.UserStore.getRoom(props.id)
         history.push(`/room/${props.id}`)
@@ -18,6 +20,7 @@ function RoomResult(props) {
             {tags.map((t, i)=> <span className="tag" key={i}>{t} </span>)}
             <p>{description}</p>
             <p>{guests.length}/{size}</p>
+            {roomPassword && <LockTwoToneIcon /> }
         </div>
     )
 }

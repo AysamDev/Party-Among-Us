@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import { observer, inject } from 'mobx-react'
 import {TextField, Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
 import Select from 'react-select'
-
+import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -24,9 +24,9 @@ function CreateRoom(props) {
     const [roomName, setRoomName] = useState("")
     const [roomPassword, setRoomPassword] = useState("")
     const [description, setDescription] = useState("")
-    const [queue, setQueue] = useState([])
     const [tags, setTags] = useState([])
     const [theme, setTheme] = useState("")
+    const { enqueueSnackbar } = useSnackbar();
 
     const classes = useStyles();
 
@@ -42,14 +42,16 @@ function CreateRoom(props) {
     }
 
     const createRoom = () => {
-        // props.UserStore.createRoom(roomName, [], roomPassword, '2s', description, tags.map(t=> t.label), queue, theme, 'hostPassword', 10)
-        props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t=> t.label), theme)
-        handleClose()
+        if(!roomName || !theme){
+            enqueueSnackbar('some fields are missing', { variant: 'warning' })
+        }else{
+            props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t=> t.label), theme)
+            handleClose()
+        }
     }
 
     return (
         <div id="createRoomPopUp" >
-
             <Modal
                 aria-labelledby="transition-modal-title"
                 aria-describedby="transition-modal-description"

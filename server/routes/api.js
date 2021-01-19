@@ -68,5 +68,15 @@ router.put('/update/:roomName/:newRoomName', async function (req, res) {
     }
 })
 
+router.put('/room/:roomID', async function (req, res) {
+    try {
+        const {newVal, field} = req.body
+        const room = await Room.findOneAndUpdate({ _id: req.params.roomID }, { [field]: newVal }, { new: true });
+        res.send(room);
+    } catch (error) {
+        console.log(error);
+        res.send(error);
+    }
+})
 
 module.exports = router;

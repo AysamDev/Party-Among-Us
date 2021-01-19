@@ -28,7 +28,6 @@ function SideMenu(props) {
             setSong("")
             // console.log(`https://www.youtube.com/watch?v=${i.id.videoId}&ab_channel=${i.snippet.channelTitle.split(' ')[0]}`)
         }else{
-            setSong(song => song + event.key)
             items.length && setItems([])
         }
     }
@@ -46,7 +45,7 @@ function SideMenu(props) {
                 variant="outlined"
                 id="song"
                 onKeyPress = {search}
-                // onChange = {({target}) => setSong(target.value)}
+                onChange = {({target}) => setSong(target.value)}
             />
             <Button variant="contained" color="secondary" onClick={leave}>
                 Leave Room
