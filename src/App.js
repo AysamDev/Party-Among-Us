@@ -1,13 +1,14 @@
 import React from 'react'
-import { BrowserRouter as Router, Route, Redirect} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom'
 import './App.css'
 import Home from "./components/Home";
 import Room from "./components/Room";
-import { observer, inject } from 'mobx-react'
+import Video from "./components/Video";
 
 function App() {
   return (
     <div>
+      <Video/>
       <Router>
         <div id="header">logo</div>
         <Route path="/Home" exact render={() => <Home />} />
@@ -18,4 +19,5 @@ function App() {
   )
 }
 
-export default inject("UserStore")(observer(App))
+export default App
+
