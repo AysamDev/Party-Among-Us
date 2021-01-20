@@ -78,3 +78,30 @@
   width: 75vw;
   height: 75vh;
 }
+
+.input-hidden {
+  position: absolute;
+  left: -9999px;
+}
+
+
+input[type=radio]:checked + label>* {
+  border: 1px solid #fff;
+  box-shadow: 0 0 3px 3px #090;
+}
+
+input[type=radio]{
+  border: 1px solid transparent;
+  box-shadow: 0 0 3px 3px transparent;
+  margin: 20px;
+}
+
+input[disabled] + label>* {
+  filter: grayscale(100%);
+}
+
+#avatarsImg{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 0.1vh;
+}

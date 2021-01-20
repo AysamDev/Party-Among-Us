@@ -31,7 +31,7 @@ function CreateRoom(props) {
     const classes = useStyles();
 
     const tagOptions = props.UserStore.genres.map((g, i)=> ({label: g, value: i}))
-    const themeOptions = props.UserStore.images.map(i => ({label: i.id, value: i.src}))
+    const themeOptions = props.UserStore.themes.map(t => ({label: t.name, value: t.value}))
 
     const handleClose = () => {
         props.open(false)
@@ -94,11 +94,13 @@ function CreateRoom(props) {
                         options={tagOptions}
                         className="basic-multi-select"
                         classNamePrefix="select"
+                        placeholder="Select Tags"
                         onChange={updateSelect}
                     />
                     <Select 
                         options={themeOptions} 
-                        onChange={event => setTheme(event  ? event.value: "")} 
+                        onChange={event => setTheme(event  ? event.value: "")}
+                        placeholder="Select Theme" 
                         isClearable="true" id="themeSelect" 
                     />
                     <Button variant="contained" color="secondary" onClick={createRoom} >
