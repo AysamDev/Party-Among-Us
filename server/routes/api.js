@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Room = require('../models/Room.js');
-const axios = require('axios');
-const apiKey = require('./credentials')
 
-router.get('/sanity', function (req, res) {
-    res.sendStatus(200);
-});
 
 router.get('/rooms', async function (req, res) {
     try {

@@ -1,19 +1,19 @@
-import React, {useState, useEffect} from 'react'
-import Board from './Board'
-import SideMenu from './SideMenu'
-import UserForm from './UserForm'
+import React, {useState, useEffect} from 'react';
+import Board from './Board';
+import SideMenu from './SideMenu';
+import UserForm from './UserForm';
 import {useHistory, useLocation} from "react-router-dom";
-import { observer, inject } from 'mobx-react'
+import { observer, inject } from 'mobx-react';
 import {Button} from '@material-ui/core';
 
 function Room(props) {
-    const [open, setOpen] = useState(null)
-    const location = useLocation()
-    let history = useHistory()
-    
+    const [open, setOpen] = useState(null);
+    const location = useLocation();
+    let history = useHistory();
+
     useEffect(() => {
         checkValidity()
-    }, [])
+    }, []);
 
     const checkValidity = async () => {
         const roomID = location.pathname.split('/')[2]
@@ -52,7 +52,7 @@ function Room(props) {
             {open === false && (
                 <>
                     <SideMenu />
-                    <Board /> 
+                    <Board />
                     {checkHost() && <Button variant="contained" color="secondary" onClick={deleteRoom} >
                         Delete Room
                     </Button>}

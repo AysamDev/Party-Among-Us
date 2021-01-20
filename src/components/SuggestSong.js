@@ -1,23 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
-import { observer, inject } from 'mobx-react'
+import { observer, inject } from 'mobx-react';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     paper: {
-      backgroundColor: theme.palette.background.paper,
-      border: '2px solid #000',
-      boxShadow: theme.shadows[5],
-      padding: theme.spacing(4, 4, 4),
-      display: 'grid',
-      gridGap: theme.spacing(2),
+        backgroundColor: theme.palette.background.paper,
+        border: '2px solid #000',
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(4, 4, 4),
+        display: 'grid',
+        gridGap: theme.spacing(2),
     },
-  }));
-  
+}));
+
 function SuggestSong(props) {
     const [open, setOpen] = useState(true)
     const classes = useStyles();
@@ -55,7 +55,7 @@ function SuggestSong(props) {
                         {props.items.map(i => <div id={i.id} key={i.id} data-channel={i.channel} onClick={clickEvent} >{i.title}</div> )}
                     </div>
                 </Fade>
-            </Modal> 
+            </Modal>
         </div>
     )
 }

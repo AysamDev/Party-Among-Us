@@ -1,22 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {Button, TextField} from '@material-ui/core';
-import Playlist from './Playlist'
-import { observer, inject } from 'mobx-react'
+import Playlist from './Playlist';
+import { observer, inject } from 'mobx-react';
 import { useHistory } from "react-router-dom";
 import SuggestSong from './SuggestSong';
-import axios from 'axios'
-require('dotenv').config()
+import axios from 'axios';
+require('dotenv').config();
 
 function SideMenu(props) {
-    const {name, src} = props.UserStore.avatar
-    const [song, setSong] = useState("")
-    const [openSuggest, setOpenSuggest] = useState(false)
-    const [items, setItems] = useState([])
-    let history = useHistory()
+    const {name, src} = props.UserStore.avatar;
+    const [song, setSong] = useState("");
+    const [openSuggest, setOpenSuggest] = useState(false);
+    const [items, setItems] = useState([]);
+    let history = useHistory();
 
     const leave = async () => {
-        props.UserStore.LeaveRoom()
-        history.push("/home")
+        props.UserStore.LeaveRoom();
+        history.push("/home");
     }
 
     const search = async (event) => {

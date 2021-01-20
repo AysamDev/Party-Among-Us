@@ -1,6 +1,6 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const api = require('./server/routes/api')
+const express = require('express');
+const mongoose = require('mongoose');
+const api = require('./server/routes/api');
 const PORT = process.env.PORT || 4200;
 const URI = process.env.MONGODB_URI || 'mongodb://localhost/roomsDB';
 const app = express()
@@ -16,18 +16,18 @@ const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO,
   ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION,
   JOIN_ROOM } = require('./src/Constants');
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With')
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
-  next()
+  next();
 })
 
-app.use('/', api)
+app.use('/', api);
 
 mongoose.connect(URI,
   { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 })

@@ -1,31 +1,31 @@
-import React, {useState} from 'react'
-import { observer, inject } from 'mobx-react'
+import React, {useState} from 'react';
+import { observer, inject } from 'mobx-react';
 import {TextField, Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
-import Select from 'react-select'
+import Select from 'react-select';
 import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(4, 4, 4),
-    display: 'grid',
-    gridGap: theme.spacing(2),
-  },
+    modal: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    paper: {
+        backgroundColor: theme.palette.background.paper,
+        border: '2px solid #000',
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(4, 4, 4),
+        display: 'grid',
+        gridGap: theme.spacing(2)
+    }
 }));
 
 function CreateRoom(props) {
-    const [roomName, setRoomName] = useState("")
-    const [roomPassword, setRoomPassword] = useState("")
-    const [description, setDescription] = useState("")
-    const [tags, setTags] = useState([])
-    const [theme, setTheme] = useState("")
+    const [roomName, setRoomName] = useState("");
+    const [roomPassword, setRoomPassword] = useState("");
+    const [description, setDescription] = useState("");
+    const [tags, setTags] = useState([]);
+    const [theme, setTheme] = useState("");
     const { enqueueSnackbar } = useSnackbar();
 
     const classes = useStyles();

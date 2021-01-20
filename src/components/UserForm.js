@@ -1,24 +1,24 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import {TextField, Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
-import { observer, inject } from 'mobx-react'
-import Select from 'react-select'
+import { observer, inject } from 'mobx-react';
+import Select from 'react-select';
 import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     paper: {
-      backgroundColor: theme.palette.background.paper,
-      border: '2px solid #000',
-      boxShadow: theme.shadows[5],
-      padding: theme.spacing(4, 4, 4),
-      display: 'grid',
-      gridGap: theme.spacing(2),
+        backgroundColor: theme.palette.background.paper,
+        border: '2px solid #000',
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(4, 4, 4),
+        display: 'grid',
+        gridGap: theme.spacing(2),
     },
-  }));
+}));
 
 function UserForm(props) {
     const classes = useStyles();
@@ -57,11 +57,11 @@ function UserForm(props) {
                         id="userName"
                         onChange = {({target}) => setUserName(target.value)}
                     />
-                    <Select 
-                        options={avatarOptions} 
+                    <Select
+                        options={avatarOptions}
                         placeholder="Select avatar"
-                        onChange={event => setAvatar(event  ? event.label: "")} 
-                        isClearable="true" id="themeSelect" 
+                        onChange={event => setAvatar(event  ? event.label: "")}
+                        isClearable="true" id="themeSelect"
                     />
                     <Button variant="contained" color="secondary" onClick={openRoom} >
                         Submit

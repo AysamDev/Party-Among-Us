@@ -1,6 +1,6 @@
-import React from 'react'
-import { observer, inject } from 'mobx-react'
-import Song from './Song'
+import React from 'react';
+import { observer, inject } from 'mobx-react';
+import Song from './Song';
 
 function Playlist(props) {
     return (
@@ -10,4 +10,4 @@ function Playlist(props) {
     )
 }
 
-export default inject("UserStore")(observer(Playlist))
+export default inject("UserStore")(observer(Playlist));

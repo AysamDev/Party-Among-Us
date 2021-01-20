@@ -22,15 +22,9 @@
   grid-gap: 0.5vw;
 }
 
-#sideMenu > *{
-  /* border: solid black 0.1vw; */
-}
 #sideMenu img{
   height: 10vh;
 }
-/* #sideMenu button {
-  height: 8vh;
-} */
 
 #home{
   display: grid;
@@ -40,16 +34,6 @@
   height: 90vh;
   z-index: 0;
 }
-
-/* #landingActions{
-  display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
-  grid-gap: 1vw;
-}
-
-#landingActions > *{
-  border: black 0.1vw solid;
-} */
 
 #createRoom{
   height: 7vh;
@@ -92,5 +76,5 @@
 
 #createRoomPopUp{
   width: 75vw;
-  height: 75v;
+  height: 75vh;
 }

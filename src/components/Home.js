@@ -1,8 +1,8 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import Button from '@material-ui/core/Button';
-import RoomResult from './RoomResult'
-import CreateRoom from './CreateRoom'
-import { observer, inject } from 'mobx-react'
+import RoomResult from './RoomResult';
+import CreateRoom from './CreateRoom';
+import { observer, inject } from 'mobx-react';
 import { TextField } from '@material-ui/core';
 
 //textfield: at the beginning there is top 10
@@ -16,16 +16,16 @@ function Home(props) {
     }
 
     const popForm = () => {
-        const currPop = popUp ? false : true 
+        const currPop = popUp ? false : true
         setPopUp(currPop)
     }
-    
+
     const rooms = searchInput.length ?  dynamicSearch() : props.UserStore.getTop10()
-    const heading = searchInput.length ? "Search Results" :"Top 10" 
+    const heading = searchInput.length ? "Search Results" :"Top 10"
 
     return (
         <div id="home">
-            <div id="landingActions"> 
+            <div id="landingActions">
                 <div id="userActions">
                     <TextField id="search" label="Find Room" value={searchInput}
                     onChange={({target})=> setSearchInput(target.value)} />
@@ -38,7 +38,7 @@ function Home(props) {
                     {rooms.map(r => <RoomResult room={r} key={r._id} id={r._id} />)}
                 </div>
             </div>
-            {popUp && <CreateRoom open={setPopUp} />} 
+            {popUp && <CreateRoom open={setPopUp} />}
         </div>
     )
 }
