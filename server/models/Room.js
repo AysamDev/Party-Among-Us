@@ -3,12 +3,12 @@ const Schema = mongoose.Schema
 
 const roomSchema = new Schema({
     roomName: String,
-    guests: [Object], 
+    guests: [{id: String, userName: String, avatar: String}], 
     roomPassword: String,
     host: String,
     description: String,
     tags: [String],
-    queue: [Object],
+    queue: [{id: String, song: String, votes:Number}],
     theme: String, 
     hostPassword: String,
     size: Number

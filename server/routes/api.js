@@ -60,17 +60,6 @@ router.put('/room/:roomID', async function (req, res) {
     }
 })
 
-/**********************************************************************************************************************************************************************************/
-// router.get('/search/:input', async function (req, res) {
-//     try {
-//         const results = await axios.get(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${req.params.input}type=video&key=${apiKey}`);
-//         res.send(results.data.items.map(i => {return {videoId: i.id.videoId, title: i.snippet.title}}));
-//     } catch (error) {
-//         console.log(error);
-//         res.send(error);
-//     }
-// });
-
 //save song to db
 router.put('/addTrack/:roomID/:vidID/:vidTitle', async function (req, res) {
     const { roomID, vidID, vidTitle } = req.params
