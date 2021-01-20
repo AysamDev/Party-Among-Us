@@ -6,6 +6,8 @@ import NativeSelect from '@material-ui/core/NativeSelect';
 import InputLabel from '@material-ui/core/InputLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import InputEmoji from "react-input-emoji";
+import { observer, inject } from 'mobx-react';
+
 
 const useStyles = makeStyles((theme) => ({
     selectTheme: {
@@ -25,11 +27,11 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-function Board() {
+function Board(props) {
     const canvasRef = useRef(null),
     messageRef = useRef(null),
     boardRef = useRef(null),
-    [theme, setTheme] = useState('theme1'),
+    [theme, setTheme] = useState(props.UserStore.room.theme),
     classes = useStyles();
 
     const doDance = () => {
@@ -64,7 +66,7 @@ function Board() {
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
-        boardRef.current = new BoardCanvas(canvas, context, 'theme1');
+        boardRef.current = new BoardCanvas(canvas, context, theme);
         //TODO get sockets for other players before we start
         boardRef.current.start();
     }, []);
@@ -101,4 +103,4 @@ function Board() {
     )
 }
 
-export default Board;
+export default inject("UserStore")(observer(Board))

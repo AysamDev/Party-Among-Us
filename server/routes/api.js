@@ -55,12 +55,12 @@ router.put('/room/:roomID', async function (req, res) {
     }
 })
 
-//save song to db
-router.put('/addTrack/:roomID/:vidID/:vidTitle', async function (req, res) {
-    const { roomID, vidID, vidTitle } = req.params
-    const video = {id: vidID, title: vidTitle}
+//add user or song to array
+router.put('/add/:roomID/:field', async function (req, res) {
+    const { newObj } = req.body
+    const { roomID, field } = req.params
     try {
-        const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': {queue: video} }, { new: true });
+        const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': {[field]: newObj} }, { new: true });
         res.send(room);
     } catch (error) {
         console.log(error);
@@ -68,16 +68,15 @@ router.put('/addTrack/:roomID/:vidID/:vidTitle', async function (req, res) {
     }
 })
 
-//delete song from db
-router.delete('/addTrack/:roomID/:vidID', async function (req, res) {
-    const { roomID, vidID} = req.params
+//remove user or song from array
+router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
+    const { roomID, objectID, field} = req.params
     try {
-        const room = await Room.findOneAndUpdate({ _id: roomID }, { "$pull": { "queue": { "id": vidID } } }, { new: true });
+        const room = await Room.findOneAndUpdate({ _id: roomID }, { "$pull": { [field]: { "id": objectID } } }, { new: true });
         res.send(room);
     } catch (error) {
         console.log(error);
         res.send(error);
     }
 })
-
 module.exports = router;
