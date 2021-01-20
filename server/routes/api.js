@@ -2,19 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Room = require('../models/Room.js');
 const axios = require('axios');
+const apiKey = require('./credentials')
 
 router.get('/sanity', function (req, res) {
     res.sendStatus(200);
-});
-
-router.get('/spotifyAPI', async function (req, res) {
-    try {
-        const spotifyData = await axios.get(``);
-        res.send(spotifyData.data);
-    } catch (error) {
-        console.log(error);
-        res.send(error);
-    }
 });
 
 router.get('/rooms', async function (req, res) {
@@ -58,9 +49,10 @@ router.delete('/room/:roomID', async function (req, res) {
     }
 });
 
-router.put('/update/:roomName/:newRoomName', async function (req, res) {
+router.put('/room/:roomID', async function (req, res) {
     try {
-        const room = await Room.findOneAndUpdate({ roomName: req.params.roomName }, { roomName: req.params.newRoomName }, { new: true });
+        const {newVal, field} = req.body
+        const room = await Room.findOneAndUpdate({ _id: req.params.roomID }, { [field]: newVal }, { new: true });
         res.send(room);
     } catch (error) {
         console.log(error);
@@ -68,5 +60,40 @@ router.put('/update/:roomName/:newRoomName', async function (req, res) {
     }
 })
 
+/**********************************************************************************************************************************************************************************/
+// router.get('/search/:input', async function (req, res) {
+//     try {
+//         const results = await axios.get(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${req.params.input}type=video&key=${apiKey}`);
+//         res.send(results.data.items.map(i => {return {videoId: i.id.videoId, title: i.snippet.title}}));
+//     } catch (error) {
+//         console.log(error);
+//         res.send(error);
+//     }
+// });
+
+//save song to db
+router.put('/addTrack/:roomID/:vidID/:vidTitle', async function (req, res) {
+    const { roomID, vidID, vidTitle } = req.params
+    const video = {id: vidID, title: vidTitle}
+    try {
+        const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': {queue: video} }, { new: true });
+        res.send(room);
+    } catch (error) {
+        console.log(error);
+        res.send(error);
+    }
+})
+
+//delete song from db
+router.delete('/addTrack/:roomID/:vidID', async function (req, res) {
+    const { roomID, vidID} = req.params
+    try {
+        const room = await Room.findOneAndUpdate({ _id: roomID }, { "$pull": { "queue": { "id": vidID } } }, { new: true });
+        res.send(room);
+    } catch (error) {
+        console.log(error);
+        res.send(error);
+    }
+})
 
 module.exports = router;
