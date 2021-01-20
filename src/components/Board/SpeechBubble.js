@@ -9,16 +9,16 @@ export default function SpeechBubble(context, playerX, playerY) {
     if (playerY < 0) playerY = 15;
 
 	// Panel
-	this.panelBounds = new SpeechBubble.Bounds(playerX, playerY, 150, 62);
+	this.panelBounds = new SpeechBubble.Bounds(playerX, playerY, 150, 34);
 	this.cornerRadius = 10;
 	this.padding = 3;
 	this.panelBorderWidth = 2;
 	this.panelBorderColor = "#333";
-	this.panelFillColor = "#FFF";
+	this.panelFillColor = 'rgba(255, 255, 255, 0.9)';
 
 	// Tail
 	this.tailBaseWidth = 7;
-	this.tailStyle = SpeechBubble.TAIL_CURVED;
+	this.tailStyle = SpeechBubble.TAIL_STRAIGHT;
 	this.target = new SpeechBubble.Vector();
 
 	// Text
@@ -236,7 +236,7 @@ SpeechBubble.prototype.drawTail = function(panelSide, start, end) {
 
 	if (this.tailStyle === SpeechBubble.TAIL_STRAIGHT) {
 		this.context.lineTo(start.x, start.y);
-		this.context.lineTo(this.target.x, this.target.y);
+		this.context.lineTo(this.target.x+20, this.target.y+20);
 		this.context.lineTo(end.x, end.y);
 	}
 	else if (this.tailStyle === SpeechBubble.TAIL_CURVED) {

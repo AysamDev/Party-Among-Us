@@ -66,7 +66,7 @@ export default class BoardCanvas {
 
     drawBubbleChat(player) {
         if (player.message) {
-            this.speechBubble = new SpeechBubble(this.CONTEXT, player.y - 85, player.x - 100);
+            this.speechBubble = new SpeechBubble(this.CONTEXT, player.y - 34, player.x - 56);
             this.speechBubble.setTargetPos(player.x, player.y);
             this.speechBubble.text = player.message;
             this.speechBubble.draw();
