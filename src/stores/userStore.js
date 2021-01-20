@@ -21,6 +21,7 @@ export class UserStore{
             {name: "lime", src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
             {name: "black", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
         ]
+        
         this.genres = ["Blues", "Classical", "Hip-Hop",
                         "Children", "Comedy", "Dance", "Electronic",
                         "Pop", "Jazz", "Anime", "K-Pop", "Opera",
