@@ -2,7 +2,7 @@ import SpeechBubble from './SpeechBubble.js';
 import Player from './Player.js';
 
 export default class BoardCanvas {
-    static DEFAULT_PLAYER_POS = {x: 350, y: 350};
+    static DEFAULT_PLAYER_POS = { x: 350, y: 350 };
 
     constructor(canvas, context, theme) {
         this.IS_RUNNING = true;
@@ -11,11 +11,11 @@ export default class BoardCanvas {
         this.CONTEXT = context;
         this.PLAYERS = [];
         this.drawingLoop = this.drawingLoop.bind(this);
-        this.newPlayer();
     }
 
-    newPlayer() {
-        const player = new Player(BoardCanvas.DEFAULT_PLAYER_POS.x, BoardCanvas.DEFAULT_PLAYER_POS.y, this.CONTEXT, this.getImg(`spritePlayer${this.PLAYERS.length}`));
+    //change get img to get avatar length = 0 'now' but should be according to avatar color index
+    newPlayer(playerProps) {
+        const player = new Player(playerProps, this.CONTEXT, this.getImg(`spritePlayer0`)); //spritePlayer${avatarIndex}
         player.targetPos = BoardCanvas.DEFAULT_PLAYER_POS;
         this.PLAYERS.push(player);
     }
@@ -30,15 +30,11 @@ export default class BoardCanvas {
 
     async start() {
         const imagesArray = () => {
-            const arr=[];
-            for (let i=1; i<=14; i++)
+            const arr = [];
+            for (let i = 1; i <= 10; i++)
                 arr.push(`./img/theme${i}.png`);
-
-            arr.push('./img/spritePlayer0.png');
-
-            for (let i=0; i<10; i++)
+            for (let i = 0; i < 10; i++)
                 arr.push(`./img/spritePlayer${i}.png`);
-
             return arr;
         }
 
@@ -49,7 +45,7 @@ export default class BoardCanvas {
                 image.onerror = r;
                 image.src = src;
             }
-        );
+            );
 
         await Promise.all(imagesArray().map(m => preloadImage(m)));
 

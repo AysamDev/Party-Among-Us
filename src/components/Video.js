@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import YouTube from 'react-youtube';
 import {
   PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, ASK_FOR_VIDEO_INFORMATION,
-  SYNC_VIDEO_INFORMATION, JOIN_ROOM
+  SYNC_VIDEO_INFORMATION
 } from '../Constants';
-
-var io = require('socket.io-client');
-const socketUrl = "http://localhost:4200";
+import { observer, inject } from 'mobx-react'
 
 const opts = {
   height: '390',
@@ -27,16 +25,6 @@ class Video extends Component {
   }
 
   onSocketMethods = (socket) => {
-    socket.on('connect', () => {
-      socket.emit(JOIN_ROOM, {
-        room: this.state.room,
-      });
-      socket.emit(ASK_FOR_VIDEO_INFORMATION);
-    });
-
-    socket.on('disconnect', () => {
-      console.log("Disconnected");
-    });
 
     socket.on(PLAY, () => {
       this.state.player.playVideo();
@@ -88,7 +76,7 @@ class Video extends Component {
       player: e.target
     });
 
-    const socket = io(socketUrl);
+    const socket = this.props.UserStore.socket
     this.setState({ socket });
     this.onSocketMethods(socket);
   }
@@ -135,4 +123,4 @@ class Video extends Component {
   }
 }
 
-export default Video
+export default inject("UserStore")(observer(Video))

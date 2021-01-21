@@ -6,6 +6,8 @@ import NativeSelect from '@material-ui/core/NativeSelect';
 import InputLabel from '@material-ui/core/InputLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import InputEmoji from "react-input-emoji";
+import { observer, inject } from 'mobx-react'
+import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE } from '../Constants';
 
 const useStyles = makeStyles((theme) => ({
     selectTheme: {
@@ -25,15 +27,25 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-function Board() {
+const Board = observer((props) => {
+
+    const webSocket = useRef(props.UserStore.socket)
+
+    let { userName, avatar, player_x, player_y, playerMessage, room, width, height } = props.UserStore
+
+    const playerIndex = (socket_id) => {
+        const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id)
+        return index
+    }
+
     const canvasRef = useRef(null),
-    messageRef = useRef(null),
-    boardRef = useRef(null),
-    [theme, setTheme] = useState('theme1'),
-    classes = useStyles();
+        messageRef = useRef(null),
+        boardRef = useRef(null),
+        [theme, setTheme] = useState('theme1'),
+        classes = useStyles();
 
     const doDance = () => {
-        boardRef.current.PLAYERS[0].movePlayer(null);
+        boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].movePlayer(null);
     }
 
     const onSelectTheme = (e) => {
@@ -44,40 +56,108 @@ function Board() {
 
     const sendMessage = () => {
         const message = messageRef.current;
-        boardRef.current.PLAYERS[0].sendMessage(message.value);
+        boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].sendMessage(message.value);
+        // webSocket.current.emit(SEND_MESSAGE, {
+        //     id: webSocket.current.id,
+        //     message: message
+        // })
     }
 
-    const onCanvasClick = (e) => {
+    // webSocket.current.on(RECEIVED_MESSAGE, (data) => {
+    //     const { message, id } = data
+    //     playerMessage = message
+    //     boardRef.current.PLAYERS[playerIndex(id)].sendMessage(message);
+    // });
+
+    const onCanvasClick = (e, id, bool) => {
+
         const rect = canvasRef.current.getBoundingClientRect();
         let x = Math.floor(e.clientX - rect.left);
         let y = Math.floor(e.clientY - rect.top);
+        const playerId = id ? id : webSocket.current.id
 
-        if (x + boardRef.current.PLAYERS[0].width > canvasRef.current.width)
-            x = x - boardRef.current.PLAYERS[0].width;
+        console.log(playerId)
+        if (x + boardRef.current.PLAYERS[playerIndex(playerId)].width > canvasRef.current.width)
+            x = x - boardRef.current.PLAYERS[playerIndex(playerId)].width;
 
-        if (y + boardRef.current.PLAYERS[0].height > canvasRef.current.height)
-            y = y - boardRef.current.PLAYERS[0].height;
+        if (y + boardRef.current.PLAYERS[playerIndex(playerId)].height > canvasRef.current.height)
+            y = y - boardRef.current.PLAYERS[playerIndex(playerId)].height;
 
-        boardRef.current.PLAYERS[0].targetPos = {x, y};
+        if (!bool) {
+            webSocket.current.emit(MOVE_PLAYER, {
+                id: webSocket.current.id,
+                x: x,
+                y: y
+            })
+        }
+
+        boardRef.current.PLAYERS[playerIndex(playerId)].targetPos = { x, y };
     }
 
     useEffect(() => {
+        console.log('??????????????????????')
+        //webSocket.current = props.UserStore.socket
+        // const playerProps = {
+        //     playerId: webSocket.current.id,
+        //     userName: userName,
+        //     avatar: avatar,
+        //     width: width,
+        //     height: height,
+        //     x: player_x,
+        //     y: player_y,
+        //     playerMessage: playerMessage,
+        //     theme: room.theme
+        // }
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         boardRef.current = new BoardCanvas(canvas, context, 'theme1');
-        //TODO get sockets for other players before we start
+        boardRef.current.PLAYERS = []
+        room.guests.forEach(g => boardRef.current.newPlayer({
+            playerId: g.id,
+            userName: g.userName,
+            avatar: g.avatar,
+            x: 350,
+            y: 350,
+            width: 85,
+            height: 85,
+            playerMessage: null,
+            theme: room.theme
+        }));
         boardRef.current.start();
     }, []);
+
+    webSocket.current.on(ADD_PLAYER, (data) => {
+        console.log(data)
+        boardRef.current.newPlayer({
+            playerId: data.id,
+            userName: data.userName,
+            avatar: data.avatar,
+            x: data.x,
+            y: data.y,
+            height: 85, 
+            width: 85,
+            theme: data.theme,
+            playerMessage: data.playerMessage
+        });
+    });
+
+    webSocket.current.on(PLAYER_MOVED, (data) => {
+        // e = ({clientX = x, clientY = y}, id = socket.id, bool = false)
+        const { id, x, y } = data
+        console.log(playerIndex(id))
+        onCanvasClick({clientX: x,clientY: y}, id, true)
+        //boardRef.current.PLAYERS[playerIndex(id)].targetPos = { x, y }
+    });
 
     return (
         <div id="board">
             <canvas onMouseDown={onCanvasClick} ref={canvasRef} width="1000" height="632"></canvas>
-            <br/>
+            <br />
             <FormControl className={classes.chat}>
                 <InputEmoji maxLength={31} ref={messageRef} onEnter={sendMessage} cleanOnEnter placeholder="Type a message (/dance to dance)" />
                 <Button type="button" onClick={doDance} className={classes.btnDance} variant="contained" color="secondary">Dance</Button>
             </FormControl>
-            <br/>
+            <br />
             <FormControl className={classes.selectTheme}>
                 <InputLabel color="secondary">Select a theme:</InputLabel>
                 <NativeSelect value={theme} onChange={onSelectTheme} name="select_theme" color="secondary">
@@ -99,6 +179,6 @@ function Board() {
             </FormControl>
         </div>
     )
-}
+})
 
-export default Board;
+export default inject("UserStore")(Board)

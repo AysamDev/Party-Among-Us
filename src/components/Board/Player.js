@@ -1,21 +1,24 @@
 import Sprite from './Sprite.js';
 
 export default class Player extends Sprite {
-    static ANIMATION_TYPE = {IDLE: 0, WALK: 1, DANCE: 4};
-    static DIRECTION = {RIGHT: 0, LEFT: 2};
+    static ANIMATION_TYPE = { IDLE: 0, WALK: 1, DANCE: 4 };
+    static DIRECTION = { RIGHT: 0, LEFT: 2 };
 
-    constructor(x, y, context, image) {
+    constructor(playerProps, context, image) {
         super({
-            x: x,
-            y: y,
+            x: playerProps.x,
+            y: playerProps.y,
             context: context,
             image: image,
         });
-
-        this.width = 85;
-        this.height = 85;
+        this.width = playerProps.width;
+        this.height = playerProps.height;
+        this.playerId = playerProps.playerId;
+        this.userName = playerProps.userName;
+        this.avatar = playerProps.avatar;
+        this.theme = playerProps.theme;
         this.dir = Player.DIRECTION.RIGHT;
-        this.message = null;
+        this.message = playerProps.playerMessage//null;
         this.timerMessage = 500;
         this.frameIndex = 0;
         this.row = 0;
@@ -24,7 +27,7 @@ export default class Player extends Sprite {
         this.frames = 1;
     }
 
-    sendMessage (message) {
+    sendMessage(message) {
         if (message) {
             if (message === '/dance') {
                 message = null;
@@ -42,7 +45,6 @@ export default class Player extends Sprite {
             if (this.getAnimationType() !== Player.ANIMATION_TYPE.DANCE) {
                 this.animateDance();
             }
-
             return;
         }
 
