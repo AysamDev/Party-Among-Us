@@ -6,12 +6,15 @@
   margin: 1vw 0;
 }
 
-#roomNameDesc{
-  text-align: center;
+
+#sideMenuHeader{
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  padding: 0 1vw;
 }
-#roomNameDesc span{
-  font-weight: lighter;
-  font-size: smaller;
+
+#avatarUser{
+  text-align: center;
 }
 
 #header{
@@ -27,20 +30,18 @@
 #room{
   height: 90vh;
   max-height: 90vh;
-  display: grid;
-  grid-template-rows: 1fr 8fr;
 }
 
 #board{
   border: solid lightgray 0.1vw;
 }
 
-#sideMenu{
+/* #sideMenu{
   border: solid lightgray 0.1vw;
   display: grid;
   grid-template-rows: 0.7fr 1fr 0.3fr 0.3fr 0.3fr;
   grid-gap: 0.5vw;
-}
+} */
 
 #sideMenu img{
   height: 10vh;
@@ -80,14 +81,6 @@
 }
 .roomResult img {
   width : 100%;
-}
-@media only screen and (max-width: 768px) {
-  /* For mobile phones: */
-  #top10{
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 1vh;
-  }
 }
 
 #userActions{
@@ -129,4 +122,20 @@ input[disabled] + label>* {
 
 body{
   margin:0 9vw;
+}
+
+@media(max-width: 1600px){
+  body{
+    margin: 0;
+  }
+}
+@media(max-width: 768px) {
+  body{
+    margin: 0;
+  }
+  #top10{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1vh;
+  }
 }

@@ -51,12 +51,7 @@ function Room(props) {
             {prompt && <Prompt setOpen={setOpen} />}
             {open === false && (
                 <>
-                <div id="roomNameDesc">
-                    <h3>
-                        {props.UserStore.room.roomName} 
-                        <span> {props.UserStore.room.description}</span>
-                    </h3>
-                </div>
+                
                 <div className="roomGrid">
                     <SideMenu />
                     <Board />

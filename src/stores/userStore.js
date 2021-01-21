@@ -43,21 +43,7 @@ export class UserStore{
             {name: "Astro", value: "theme13"},
             {name: "Snowy", value: "theme14"},
         ]
-        // this.images = [
-        //     {
-        //         id : 1,
-        //         src: 'https://images.pexels.com/photos/4173624/pexels-photo-4173624.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-        //     },
-        //     {
-        //         id : 2,
-        //         src: 'https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616__340.jpg'
-        //     },
-        //     {
-        //         id : 3,
-        //         src: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg'
-        //     }
-        // ]
-
+        
         this.rooms = []
         this.room = {}
         this.userName = ""
@@ -109,10 +95,8 @@ export class UserStore{
 
     async addLike(songID, unlike){
         try {
-            const song = this.room.queue.find(q => q.id === songID)
-            song.votes = unlike ? song.votes-1 : song.votes+1
-            const body = { newVal: this.room.queue, field: 'queue'}
-            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`,body)).data
+            const value = unlike ? -1 : 1            
+            this.room = (await axios.put(`http://localhost:4200/vote/${this.room._id}/${songID}/${value}`)).data
         } catch (error) {
             console.log(error)
         }
@@ -137,7 +121,7 @@ export class UserStore{
 
     async getRoom(){
         try {
-            const result = (await axios.get(`http://localhost:4200/room/${this.room._id}`)).data
+            const result = (await axios.get(`http://localhost:4200/room`, this.room._id )).data
             this.room = result
         } catch (error) {
             console.log(error)
