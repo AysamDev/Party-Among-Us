@@ -4,7 +4,7 @@ import { observer, inject } from 'mobx-react';
 
 function AvatarOption(props) {
     const {avatar, setAvatar} = props
-    
+
     const isAvatarInRoom = () => {
         return props.UserStore.room.guests.find(g => g.avatar === avatar.name)
     }
@@ -21,13 +21,13 @@ function AvatarOption(props) {
 
     return (
         <>
-            {isAvatarInRoom() ? 
-                <input type="radio" name="avatar" 
+            {isAvatarInRoom() ?
+                <input type="radio" name="avatar"
                 id={avatar.name} className="input-hidden" disabled /> :
-                <input type="radio" name="avatar" 
+                <input type="radio" name="avatar"
                 id={avatar.name} className="input-hidden" />}
             <label onClick={radioChange}>
-                <Avatar alt="avatar" src={avatar.src} />
+                <Avatar variant="rounded" style={{height: 55, margin: 4}} alt="avatar" src={avatar.src} />
             </label>
         </>
     )

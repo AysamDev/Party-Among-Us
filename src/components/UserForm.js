@@ -1,8 +1,12 @@
-import React, {useState} from 'react';
-import {TextField, Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
+import React, { useState } from 'react';
+import { TextField, Button, Modal, Backdrop, Fade, makeStyles } from '@material-ui/core';
 import { useSnackbar } from 'notistack';
-import AvatarOption from './AvatarOption'
+import AvatarOption from './AvatarOption';
 import { observer, inject } from 'mobx-react';
+import SendIcon from '@material-ui/icons/Send';
+import NoMeetingRoom from '@material-ui/icons/NoMeetingRoom';
+import Grid from '@material-ui/core/Grid';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -14,10 +18,13 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.background.paper,
         border: '2px solid #000',
         boxShadow: theme.shadows[5],
-        padding: theme.spacing(4, 4, 4),
+        padding: theme.spacing(1, 4, 4),
         display: 'grid',
         gridGap: theme.spacing(2),
     },
+    grid: {
+        textAlign: 'center'
+    }
 }));
 
 function UserForm(props) {
@@ -36,7 +43,7 @@ function UserForm(props) {
             props.open(false)
         }
     }
-    
+
     return (
         <div>
             <Modal
@@ -48,18 +55,29 @@ function UserForm(props) {
                 <Fade in={true}>
                 <div className={classes.paper} >
                     <TextField
-                        required label="User Name"
+                        label="Nickname & Avatar"
+                        placeholder="Nickname"
+                        color="secondary"
                         value={userName}
-                        variant="outlined"
+                        variant="standard"
                         id="userName"
                         onChange = {({target}) => setUserName(target.value)}
                     />
+                    <br/>
                     <div id="avatarsImg" >
                         {props.UserStore.avatars.map(a => <AvatarOption key={a.name} avatar={a} setAvatar={setAvatar} />)}
                     </div>
-                    <Button variant="contained" color="secondary" onClick={openRoom} >
-                        Submit
-                    </Button>
+                    <br/>
+                    <Grid container className={classes.grid}>
+                        <Grid item xs>
+                            <Link to="/">
+                                <Button variant="contained" color="secondary" endIcon={<NoMeetingRoom/>}>Cancel</Button>
+                            </Link>
+                        </Grid>
+                        <Grid item xs>
+                            <Button variant="contained" color="secondary" onClick={openRoom} endIcon={<SendIcon/>}>Enter</Button>
+                        </Grid>
+                    </Grid>
                 </div>
                 </Fade>
             </Modal>

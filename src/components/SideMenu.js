@@ -11,7 +11,7 @@ function SideMenu(props) {
     const [song, setSong] = useState("");
     const [openSuggest, setOpenSuggest] = useState(false);
     const [items, setItems] = useState([]);
-    
+
     const search = async (event) => {
         if (event.key === 'Enter') {
             console.log('pressedEnter')

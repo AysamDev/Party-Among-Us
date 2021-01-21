@@ -25,11 +25,11 @@ function Header(props) {
     return (
         <div id="header">
             <div>Logo</div>
-            {location.pathname === '/home' ? 
+            {location.pathname === '/home' ?
                 <Button variant="contained" color="secondary" id="createRoom" onClick={popForm}>
                     Create Room
                 </Button>
-                : 
+                :
                 <Button variant="contained" color="secondary" onClick={leave}>
                     Leave Room
                 </Button>

@@ -18,6 +18,7 @@ const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO,
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static('node_modules'));
 
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');

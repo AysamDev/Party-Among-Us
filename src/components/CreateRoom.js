@@ -67,7 +67,7 @@ function CreateRoom(props) {
                 <Fade in={true}>
                 <div className={classes.paper} >
                     <TextField
-                        required label="Room Name"
+                        placeholder="Room Name"
                         value={roomName}
                         variant="outlined"
                         id="roomName"
@@ -75,14 +75,14 @@ function CreateRoom(props) {
                     />
                     <TextField
                         id="roomPassword"
-                        label="Password if Room Private"
+                        placeholder="Password (optional)"
                         type="password"
                         variant="outlined"
                         value={roomPassword}
                         onChange={({target}) => setRoomPassword(target.value)}
                     />
                     <TextField
-                        required label="Description"
+                        placeholder="Description"
                         value={description}
                         variant="outlined"
                         id="description"
@@ -97,11 +97,11 @@ function CreateRoom(props) {
                         placeholder="Select Tags"
                         onChange={updateSelect}
                     />
-                    <Select 
-                        options={themeOptions} 
+                    <Select
+                        options={themeOptions}
                         onChange={event => setTheme(event  ? event.value: "")}
-                        placeholder="Select Theme" 
-                        isClearable="true" id="themeSelect" 
+                        placeholder="Select Theme"
+                        isClearable="true" id="themeSelect"
                     />
                     <Button variant="contained" color="secondary" onClick={createRoom} >
                         Create Room

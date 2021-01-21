@@ -83,20 +83,20 @@ function Board(props) {
             <FormControl className={classes.selectTheme}>
                 <InputLabel color="secondary">Select a theme:</InputLabel>
                 <NativeSelect value={theme} onChange={onSelectTheme} name="select_theme" color="secondary">
-                    <option value="theme1">Icy</option>
-                    <option value="theme2">Sky</option>
-                    <option value="theme3">Thunder</option>
-                    <option value="theme4">Halloween1</option>
-                    <option value="theme5">Halloween2</option>
-                    <option value="theme6">WildZone</option>
-                    <option value="theme7">Medieval</option>
-                    <option value="theme8">Disco</option>
-                    <option value="theme9">DiscoStar</option>
-                    <option value="theme10">PlantWorld</option>
-                    <option value="theme11">DJ.Penguin</option>
-                    <option value="theme12">Splash</option>
-                    <option value="theme13">Astro</option>
-                    <option value="theme14">Snowy</option>
+                    <option value="theme1.jpg">Icy</option>
+                    <option value="theme2.jpg">Sky</option>
+                    <option value="theme3.jpg">Thunder</option>
+                    <option value="theme4.jpg">Halloween1</option>
+                    <option value="theme5.jpg">Halloween2</option>
+                    <option value="theme6.jpg">WildZone</option>
+                    <option value="theme7.jpg">Medieval</option>
+                    <option value="theme8.jpg">Disco</option>
+                    <option value="theme9.jpg">DiscoStar</option>
+                    <option value="theme10.jpg">PlantWorld</option>
+                    <option value="theme11.jpg">DJ.Penguin</option>
+                    <option value="theme12.jpg">Splash</option>
+                    <option value="theme13.jpg">Astro</option>
+                    <option value="theme14.jpg">Snowy</option>
                 </NativeSelect>
             </FormControl>
         </div>

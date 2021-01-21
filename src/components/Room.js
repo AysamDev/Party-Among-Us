@@ -31,9 +31,9 @@ function Room(props) {
                 setOpen(true)
             }
         }else if(!room){
-            setAlert({value: true, text: "Room is Not Found" })
+            setAlert({value: true, text: "The room is not found!" })
         }else{
-            setAlert({value: true, text: "The Room is Full" })
+            setAlert({value: true, text: "The room is full!" })
         }
     }
 
@@ -53,7 +53,7 @@ function Room(props) {
                 <>
                 <div id="roomNameDesc">
                     <h3>
-                        {props.UserStore.room.roomName} 
+                        {props.UserStore.room.roomName}
                         <span> {props.UserStore.room.description}</span>
                     </h3>
                 </div>

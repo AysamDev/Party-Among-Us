@@ -103,28 +103,34 @@
 
 .input-hidden {
   position: absolute;
-  left: -9999px;
+  visibility:hidden;
 }
 
-input[type=radio]:checked + label>* {
-  border: 1px solid #fff;
+input[type=radio]:checked + label {
   box-shadow: 0 0 3px 3px #090;
+  cursor: default;
 }
 
-input[type=radio]{
+input[type=radio]:enabled:not(:checked) + label{
+  cursor: pointer;
+}
+
+input[type=radio]:disabled + label {
+  cursor: not-allowed;
+  filter: opacity(30%);
+}
+
+
+input[type=radio] + label {
   border: 1px solid transparent;
   box-shadow: 0 0 3px 3px transparent;
-  margin: 20px;
-}
-
-input[disabled] + label>* {
-  filter: grayscale(100%);
+  align-self: baseline;
 }
 
 #avatarsImg{
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-gap: 0.1vh;
+  grid-gap: 10px;
 }
 
 body{
