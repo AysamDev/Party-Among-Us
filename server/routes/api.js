@@ -56,7 +56,6 @@ router.put('/room/:roomID', async function (req, res) {
     }
 })
 
-//add user or song to array
 router.put('/add/:roomID/:field', async function (req, res) {
     const { newObj } = req.body
     const { roomID, field } = req.params
@@ -69,9 +68,8 @@ router.put('/add/:roomID/:field', async function (req, res) {
     }
 })
 
-//remove user or song from array
 router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
-    const { roomID, objectID, field} = req.params
+    const { roomID, objectID, field } = req.params
     try {
         const room = await Room.findOneAndUpdate({ _id: roomID }, { "$pull": { [field]: { "id": objectID } } }, { new: true });
         res.send(room);

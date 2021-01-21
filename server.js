@@ -14,7 +14,7 @@ const io = require('socket.io')(server, {
 
 const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO,
   ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION,
-  JOIN_ROOM } = require('./src/Constants');
+  JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED } = require('./src/Constants');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -29,6 +29,7 @@ app.use(function (req, res, next) {
 
 app.use('/', api);
 
+//initialize db
 mongoose.connect(URI,
   { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 })
   .then(function () {
@@ -39,9 +40,10 @@ mongoose.connect(URI,
   });
 
 io.on('connection', function (socket) {
-  socket.on(JOIN_ROOM, (data) => {
-    socket.join(data.room);
-    socket.room = data.room;
+  socket.on(JOIN_ROOM, async (data) => {
+    await socket.join(data.room);
+    console.log(data.player);
+    socket.to(data.room).emit(ADD_PLAYER, data.player);
   });
 
   socket.on(PLAY, () => {
@@ -66,5 +68,13 @@ io.on('connection', function (socket) {
 
   socket.on(SYNC_VIDEO_INFORMATION, (data) => {
     io.to(socket.room).emit(SYNC_VIDEO_INFORMATION, data);
+  });
+
+  socket.on(MOVE_PLAYER, (data) => {
+    socket.to(data.room).emit(PLAYER_MOVED, data);
+  });
+
+  socket.on(SEND_MESSAGE, (data) => {
+    socket.to(data.room).emit(RECEIVED_MESSAGE, data);
   });
 });
