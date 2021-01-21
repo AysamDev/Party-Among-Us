@@ -23,16 +23,6 @@ router.get('/room', async function (req, res) {
     }
 });
 
-// router.get('/room/:roomID', async function (req, res) {
-//     try {
-//         const room = await Room.findOne({ _id: req.params.roomID });
-//         res.send(room);
-//     } catch (error) {
-//         console.log(error);
-//         res.send(error);
-//     }
-// });
-
 router.post('/room', async function (req, res) {
     try {
         const room = new Room({ ...req.body });
@@ -66,7 +56,7 @@ router.put('/room/:roomID', async function (req, res) {
 })
 
 router.put('/add/:roomID/:field', async function (req, res) {
-    const newObj = req.body
+    const { newObj } = req.body
     const { roomID, field } = req.params
     try {
         const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': {[field]: newObj} }, { new: true });
@@ -81,18 +71,6 @@ router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
     const { roomID, objectID, field } = req.params
     try {
         const room = await Room.findOneAndUpdate({ _id: roomID }, { "$pull": { [field]: { "id": objectID } } }, { new: true });
-        res.send(room);
-    } catch (error) {
-        console.log(error);
-        res.send(error);
-    }
-})
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.put('/updateVotes/:roomID/:videoID/:value', async function (req, res) {
-    const { roomID, videoID, value } = req.params
-    try {
-        const room = await Room.findOneAndUpdate({ _id: roomID }, { "queue.id": videoID, '$inc': {'queue.$.votes': value} }, { new: true });
         res.send(room);
     } catch (error) {
         console.log(error);

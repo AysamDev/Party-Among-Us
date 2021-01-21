@@ -9,6 +9,7 @@ import InputEmoji from "react-input-emoji";
 import { observer, inject } from 'mobx-react'
 import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE } from '../Constants';
 
+
 const useStyles = makeStyles((theme) => ({
     selectTheme: {
         margin: theme.spacing(2),
@@ -41,7 +42,7 @@ const Board = observer((props) => {
     const canvasRef = useRef(null),
         messageRef = useRef(null),
         boardRef = useRef(null),
-        [theme, setTheme] = useState('theme1'),
+        [theme, setTheme] = useState(props.UserStore.room.theme),
         classes = useStyles();
 
     const doDance = () => {
@@ -112,7 +113,7 @@ const Board = observer((props) => {
         // }
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
-        boardRef.current = new BoardCanvas(canvas, context, 'theme1');
+        boardRef.current = new BoardCanvas(canvas, context, theme);
         //boardRef.current.PLAYERS = []
         console.log(room.guests);
         room.guests.forEach(g => boardRef.current.newPlayer({
@@ -125,6 +126,7 @@ const Board = observer((props) => {
             height: 85,
             theme: room.theme
         }));
+
         boardRef.current.start();
 
         webSocket.current.on(ADD_PLAYER, (data) => {
@@ -192,3 +194,4 @@ const Board = observer((props) => {
 })
 
 export default inject("UserStore")(Board)
+

@@ -19,30 +19,40 @@ export class UserStore {
         this.userName = ""
         this.avatar = ""
         this.avatars = [
-            { name: "man", src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640" },
-            { name: "woman", src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640" },
-            { name: "guy", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png" },
+            {name: "red" , src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
+            {name: "white", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
+            {name: "orange" , src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
+            {name: "yellow", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
+            {name: "pink" , src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
+            {name: "purple", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
+            {name: "blue", src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
+            {name: "cyan", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
+            {name: "lime", src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
+            {name: "black", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
         ]
+        
         this.genres = ["Blues", "Classical", "Hip-Hop",
-            "Children", "Comedy", "Dance", "Electronic",
-            "Pop", "Jazz", "Anime", "K-Pop", "Opera",
-            "Rock", "Vocal", "Arabic"]
-        this.images = [
-            {
-                id: 1,
-                src: 'https://images.pexels.com/photos/4173624/pexels-photo-4173624.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-            },
-            {
-                id: 2,
-                src: 'https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616__340.jpg'
-            },
-            {
-                id: 3,
-                src: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg'
-            }
+                        "Children", "Comedy", "Dance", "Electronic",
+                        "Pop", "Jazz", "Anime", "K-Pop", "Opera",
+                        "Rock", "Vocal", "Arabic" ]
+    
+        this.themes=[
+            {name: "Icy", value: "theme1"},
+            {name: "Sky", value: "theme2"},
+            {name: "Thunder", value: "theme3"},
+            {name: "Halloween1", value: "theme4"},
+            {name: "Halloween2", value: "theme5"},
+            {name: "WildZone", value: "theme6"},
+            {name: "Medieval", value: "theme7"},
+            {name: "Disco", value: "theme8"},
+            {name: "DiscoStar", value: "theme9"},
+            {name: "PlantWorld", value: "theme10"},
+            {name: "DJ.Penguin", value: "theme11"},
+            {name: "Splash", value: "theme12"},
+            {name: "Astro", value: "theme13"},
+            {name: "Snowy", value: "theme14"},
         ]
-
-
+        
         makeObservable(this, {
             rooms: observable,
             userName: observable,
@@ -114,7 +124,6 @@ export class UserStore {
         }
     }
 
-    //save room to DB
     async createRoom(roomName, roomPassword, description, tags, theme) {
         //roomName, guests, roomPassword, host, description, tags, queue, theme, hostPassword, size
         try {
@@ -141,13 +150,9 @@ export class UserStore {
         }
     }
 
-
-    async LeaveRoom() {
-        try {
-            const index = this.room.guests.findIndex(g => this.socket.id === g.id)
-            this.room.guests.splice(index, 1)
-            const body = { field: 'guests', newVal: this.room.guests }
-            const response = (await axios.put(`http://localhost:4200/room/${this.room._id}`, body)).data
+    async LeaveRoom(){
+        try {       
+            const response = (await axios.delete(`http://localhost:4200/delete/${this.room._id}/${this.socket.id}/guests`)).data
             this.room = null
             this.getRooms()
         } catch (error) {
@@ -167,9 +172,9 @@ export class UserStore {
 
     async suggestSong(id, song) {
         try {
-            this.room.queue.push({ id, song, votes: 1 })
-            const newVal = { field: 'queue', newVal: this.room.queue }
-            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`, newVal)).data
+            const newVal = {newObj: {id, song, votes: 1}}
+            this.room = (await axios.put(`http://localhost:4200/add/${this.room._id}/queue`, newVal)).data
+            console.log(this.room)
         } catch (error) {
             console.log(error)
         }
@@ -198,4 +203,5 @@ export class UserStore {
             console.log(error)
         }
     }
+
 }

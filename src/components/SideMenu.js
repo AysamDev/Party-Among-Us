@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import {Button, TextField} from '@material-ui/core';
+import {TextField} from '@material-ui/core';
 import Playlist from './Playlist';
 import { observer, inject } from 'mobx-react';
-import { useHistory } from "react-router-dom";
 import SuggestSong from './SuggestSong';
 import axios from 'axios';
 require('dotenv').config();
@@ -12,13 +11,7 @@ function SideMenu(props) {
     const [song, setSong] = useState("");
     const [openSuggest, setOpenSuggest] = useState(false);
     const [items, setItems] = useState([]);
-    let history = useHistory();
-
-    const leave = async () => {
-        props.UserStore.LeaveRoom();
-        history.push("/home");
-    }
-
+    
     const search = async (event) => {
         if (event.key === 'Enter') {
             console.log('pressedEnter')
@@ -47,9 +40,7 @@ function SideMenu(props) {
                 onKeyPress = {search}
                 onChange = {({target}) => setSong(target.value)}
             />
-            <Button variant="contained" color="secondary" onClick={leave}>
-                Leave Room
-            </Button>
+            
             {items.length && openSuggest ?  <SuggestSong items={items} openSuggest={setOpenSuggest}/> : null}
         </div>
     )

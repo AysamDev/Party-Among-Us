@@ -5,10 +5,14 @@ import UserForm from './UserForm';
 import {useHistory, useLocation} from "react-router-dom";
 import { observer, inject } from 'mobx-react';
 import {Button} from '@material-ui/core';
+import Alert from './Alert'
+import Prompt from './Prompt'
 
 function Room(props) {
     const [open, setOpen] = useState(null);
     const location = useLocation();
+    const [alert, setAlert] = useState({value: false, text: ""})
+    const [prompt, setPrompt] = useState(false)
     let history = useHistory();
 
     useEffect(() => {
@@ -21,21 +25,15 @@ function Room(props) {
         const room = props.UserStore.rooms.find(r => r._id === roomID)
         if(room && room.guests.length < room.size){
             if(room.roomPassword){
-                const password = prompt("Please write the room Password")
-                if(password === room.roomPassword){
-                    props.UserStore.setRoom(room)
-                    setOpen(true)
-                }
+                setPrompt(true)
             }else{
                 props.UserStore.setRoom(room)
                 setOpen(true)
             }
         }else if(!room){
-            alert("Room is Not Found")
-            history.push("/home")
+            setAlert({value: true, text: "Room is Not Found" })
         }else{
-            alert("The Room is Full")
-            history.push("/home")
+            setAlert({value: true, text: "The Room is Full" })
         }
     }
 
@@ -47,15 +45,25 @@ function Room(props) {
     }
 
     return (
-        <div className="roomGrid">
+        <div id="room">
             {open && <UserForm open={setOpen} /> }
+            {alert.value && <Alert text={alert.text} />}
+            {prompt && <Prompt setOpen={setOpen} />}
             {open === false && (
                 <>
+                <div id="roomNameDesc">
+                    <h3>
+                        {props.UserStore.room.roomName} 
+                        <span> {props.UserStore.room.description}</span>
+                    </h3>
+                </div>
+                <div className="roomGrid">
                     <SideMenu />
                     <Board />
                     {checkHost() && <Button variant="contained" color="secondary" onClick={deleteRoom} >
                         Delete Room
                     </Button>}
+                </div>
                 </>
             )}
         </div>
