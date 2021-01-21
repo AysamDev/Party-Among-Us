@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { observer, inject } from 'mobx-react';
-import {TextField, Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
+import { TextField, Button, Modal, Backdrop, Fade, makeStyles } from '@material-ui/core';
 import Select from 'react-select';
 import { useSnackbar } from 'notistack';
 
@@ -30,8 +30,8 @@ function CreateRoom(props) {
 
     const classes = useStyles();
 
-    const tagOptions = props.UserStore.genres.map((g, i)=> ({label: g, value: i}))
-    const themeOptions = props.UserStore.themes.map(t => ({label: t.name, value: t.value}))
+    const tagOptions = props.UserStore.genres.map((g, i) => ({ label: g, value: i }))
+    const themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value }))
 
     const handleClose = () => {
         props.open(false)
@@ -42,10 +42,10 @@ function CreateRoom(props) {
     }
 
     const createRoom = () => {
-        if(!roomName || !theme){
+        if (!roomName || !theme) {
             enqueueSnackbar('some fields are missing', { variant: 'warning' })
-        }else{
-            props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t=> t.label), theme)
+        } else {
+            props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme)
             handleClose()
         }
     }
@@ -61,52 +61,52 @@ function CreateRoom(props) {
                 closeAfterTransition
                 BackdropComponent={Backdrop}
                 BackdropProps={{
-                timeout: 500,
+                    timeout: 500,
                 }}
             >
                 <Fade in={true}>
-                <div className={classes.paper} >
-                    <TextField
-                        required label="Room Name"
-                        value={roomName}
-                        variant="outlined"
-                        id="roomName"
-                        onChange = {({target}) => setRoomName(target.value)}
-                    />
-                    <TextField
-                        id="roomPassword"
-                        label="Password if Room Private"
-                        type="password"
-                        variant="outlined"
-                        value={roomPassword}
-                        onChange={({target}) => setRoomPassword(target.value)}
-                    />
-                    <TextField
-                        required label="Description"
-                        value={description}
-                        variant="outlined"
-                        id="description"
-                        onChange = {({target}) => setDescription(target.value)}
-                    />
-                    <Select
-                        isMulti
-                        name="tags"
-                        options={tagOptions}
-                        className="basic-multi-select"
-                        classNamePrefix="select"
-                        placeholder="Select Tags"
-                        onChange={updateSelect}
-                    />
-                    <Select 
-                        options={themeOptions} 
-                        onChange={event => setTheme(event  ? event.value: "")}
-                        placeholder="Select Theme" 
-                        isClearable="true" id="themeSelect" 
-                    />
-                    <Button variant="contained" color="secondary" onClick={createRoom} >
-                        Create Room
+                    <div className={classes.paper} >
+                        <TextField
+                            placeholder="Room Name"
+                            value={roomName}
+                            variant="outlined"
+                            id="roomName"
+                            onChange={({ target }) => setRoomName(target.value)}
+                        />
+                        <TextField
+                            id="roomPassword"
+                            placeholder="Password (optional)"
+                            type="password"
+                            variant="outlined"
+                            value={roomPassword}
+                            onChange={({ target }) => setRoomPassword(target.value)}
+                        />
+                        <TextField
+                            placeholder="Description"
+                            value={description}
+                            variant="outlined"
+                            id="description"
+                            onChange={({ target }) => setDescription(target.value)}
+                        />
+                        <Select
+                            isMulti
+                            name="tags"
+                            options={tagOptions}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            placeholder="Select Tags"
+                            onChange={updateSelect}
+                        />
+                        <Select
+                            options={themeOptions}
+                            onChange={event => setTheme(event ? event.value : "")}
+                            placeholder="Select Theme"
+                            isClearable="true" id="themeSelect"
+                        />
+                        <Button variant="contained" color="secondary" onClick={createRoom} >
+                            Create Room
                     </Button>
-                </div>
+                    </div>
                 </Fade>
             </Modal>
         </div>

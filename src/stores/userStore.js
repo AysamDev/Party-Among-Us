@@ -19,16 +19,16 @@ export class UserStore {
         this.userName = ""
         this.avatar = ""
         this.avatars = [
-            {name: "red" , src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
-            {name: "white", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
-            {name: "orange" , src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
-            {name: "yellow", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
-            {name: "pink" , src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
-            {name: "purple", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
-            {name: "blue", src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
-            {name: "cyan", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
-            {name: "lime", src: "https://koolinus.files.wordpress.com/2019/03/avataaars-e28093-koolinus-1-12mar2019.png?w=640"},
-            {name: "black", src: "https://user-images.githubusercontent.com/5709133/50445980-88299a80-0912-11e9-962a-6fd92fd18027.png"},
+            {name: "red" , src: "./img/avatar_red.png"},
+            {name: "white", src: "./img/avatar_white.png"},
+            {name: "orange" , src: "./img/avatar_orange.png"},
+            {name: "yellow", src: "./img/avatar_yellow.png"},
+            {name: "pink" , src: "./img/avatar_pink.png"},
+            {name: "purple", src: "./img/avatar_purple.png"},
+            {name: "blue", src: "./img/avatar_blue.png"},
+            {name: "cyan", src: "./img/avatar_cyan.png"},
+            {name: "lime", src: "./img/avatar_lime.png"},
+            {name: "black", src: "./img/avatar_black.png"},
         ]
         
         this.genres = ["Blues", "Classical", "Hip-Hop",
@@ -149,7 +149,7 @@ export class UserStore {
     }
 
     async LeaveRoom(){
-        try {       
+        try {   
             const response = (await axios.delete(`http://localhost:4200/delete/${this.room._id}/${this.socket.id}/guests`)).data
             this.room = null
             this.getRooms()

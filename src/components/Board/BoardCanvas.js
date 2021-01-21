@@ -16,7 +16,7 @@ export default class BoardCanvas {
     //change get img to get avatar length = 0 'now' but should be according to avatar color index
     newPlayer(playerProps) {
         console.log(playerProps);
-        const player = new Player(playerProps, this.CONTEXT, this.getImg(`spritePlayer0`)); //spritePlayer${avatarIndex}
+        const player = new Player(BoardCanvas.DEFAULT_PLAYER_POS.x, BoardCanvas.DEFAULT_PLAYER_POS.y, this.CONTEXT, this.getImg(`spritePlayer${this.PLAYERS.length}.png`));
         player.targetPos = BoardCanvas.DEFAULT_PLAYER_POS;
         this.PLAYERS.push(player);
     }
@@ -32,8 +32,8 @@ export default class BoardCanvas {
     async start() {
         const imagesArray = () => {
             const arr = [];
-            for (let i = 1; i <= 10; i++)
-                arr.push(`./img/theme${i}.png`);
+            for (let i = 1; i <= 14; i++)
+                arr.push(`./img/theme${i}.jpg`);
             for (let i = 0; i < 10; i++)
                 arr.push(`./img/spritePlayer${i}.png`);
             return arr;
@@ -56,7 +56,7 @@ export default class BoardCanvas {
 
     getImg(img) {
         const image = new Image();
-        image.src = `./img/${img}.png`;
+        image.src = `./img/${img}`;
         image.onload = () => { this.CONTEXT.drawImage(image, 0, 0); };
         return image;
     }
@@ -82,7 +82,7 @@ export default class BoardCanvas {
 
     drawingLoop() {
         this.CONTEXT.clearRect(0, 0, this.CANVAS.width, this.CANVAS.height);
-        this.CONTEXT.drawImage(this.getImg(this.THEME), 0, 0);
+        this.CONTEXT.drawImage(this.getImg(this.THEME + '.jpg'), 0, 0);
         for (const player of this.PLAYERS) {
             this.validateNMovePlayer(player);
             this.drawBubbleChat(player);
