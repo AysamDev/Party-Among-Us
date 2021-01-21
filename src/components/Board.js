@@ -31,7 +31,7 @@ const Board = observer((props) => {
 
     const webSocket = useRef(props.UserStore.socket)
 
-    let { userName, avatar, player_x, player_y, playerMessage, room, width, height } = props.UserStore
+    let { userName, avatar, player_x, player_y, room, width, height } = props.UserStore
 
     const playerIndex = (socket_id) => {
         const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id)
@@ -45,7 +45,12 @@ const Board = observer((props) => {
         classes = useStyles();
 
     const doDance = () => {
-        boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].movePlayer(null);
+        boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].sendMessage('/dance');
+        webSocket.current.emit(SEND_MESSAGE, {
+            id: webSocket.current.id,
+            message: '/dance',
+            room: room._id
+        })
     }
 
     const onSelectTheme = (e) => {
@@ -57,39 +62,36 @@ const Board = observer((props) => {
     const sendMessage = () => {
         const message = messageRef.current;
         boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].sendMessage(message.value);
-        // webSocket.current.emit(SEND_MESSAGE, {
-        //     id: webSocket.current.id,
-        //     message: message
-        // })
+        webSocket.current.emit(SEND_MESSAGE, {
+            id: webSocket.current.id,
+            message: message.value,
+            room: room._id
+        })
     }
 
-    // webSocket.current.on(RECEIVED_MESSAGE, (data) => {
-    //     const { message, id } = data
-    //     playerMessage = message
-    //     boardRef.current.PLAYERS[playerIndex(id)].sendMessage(message);
-    // });
+    const onCanvasClick = (e) => {
 
-    const onCanvasClick = (e, id, bool) => {
+        console.log(boardRef.current.PLAYERS);
 
         const rect = canvasRef.current.getBoundingClientRect();
         let x = Math.floor(e.clientX - rect.left);
         let y = Math.floor(e.clientY - rect.top);
-        const playerId = id ? id : webSocket.current.id
 
-        console.log(playerId)
+        const playerId = webSocket.current.id;
+        console.log(playerIndex(playerId))
         if (x + boardRef.current.PLAYERS[playerIndex(playerId)].width > canvasRef.current.width)
             x = x - boardRef.current.PLAYERS[playerIndex(playerId)].width;
 
         if (y + boardRef.current.PLAYERS[playerIndex(playerId)].height > canvasRef.current.height)
             y = y - boardRef.current.PLAYERS[playerIndex(playerId)].height;
 
-        if (!bool) {
-            webSocket.current.emit(MOVE_PLAYER, {
-                id: webSocket.current.id,
-                x: x,
-                y: y
-            })
-        }
+        console.log(webSocket.current.id);
+        webSocket.current.emit(MOVE_PLAYER, {
+            id: webSocket.current.id,
+            x: x,
+            y: y,
+            room: room._id
+        })
 
         boardRef.current.PLAYERS[playerIndex(playerId)].targetPos = { x, y };
     }
@@ -111,7 +113,8 @@ const Board = observer((props) => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         boardRef.current = new BoardCanvas(canvas, context, 'theme1');
-        boardRef.current.PLAYERS = []
+        //boardRef.current.PLAYERS = []
+        console.log(room.guests);
         room.guests.forEach(g => boardRef.current.newPlayer({
             playerId: g.id,
             userName: g.userName,
@@ -120,34 +123,41 @@ const Board = observer((props) => {
             y: 350,
             width: 85,
             height: 85,
-            playerMessage: null,
             theme: room.theme
         }));
         boardRef.current.start();
+
+        webSocket.current.on(ADD_PLAYER, (data) => {
+            console.log(data)
+            boardRef.current.newPlayer({
+                playerId: data.playerId,
+                userName: data.userName,
+                avatar: data.avatar,
+                x: data.x,
+                y: data.y,
+                height: 85,
+                width: 85,
+                theme: data.theme
+            });
+        });
+
+        webSocket.current.on(PLAYER_MOVED, (data) => {
+            // e = ({clientX = x, clientY = y}, id = socket.id, bool = false)
+            const { id, x, y } = data;
+            console.log(playerIndex(id));
+            //onCanvasClick({clientX: x, clientY: y}/*, id, true*/)
+            boardRef.current.PLAYERS[playerIndex(id)].targetPos = { x, y };
+        });
+
+        webSocket.current.on(RECEIVED_MESSAGE, (data) => {
+            const { message, id } = data
+            //playerMessage = message
+            console.log(message);
+            boardRef.current.PLAYERS[playerIndex(id)].sendMessage(message);
+        });
     }, []);
 
-    webSocket.current.on(ADD_PLAYER, (data) => {
-        console.log(data)
-        boardRef.current.newPlayer({
-            playerId: data.id,
-            userName: data.userName,
-            avatar: data.avatar,
-            x: data.x,
-            y: data.y,
-            height: 85, 
-            width: 85,
-            theme: data.theme,
-            playerMessage: data.playerMessage
-        });
-    });
 
-    webSocket.current.on(PLAYER_MOVED, (data) => {
-        // e = ({clientX = x, clientY = y}, id = socket.id, bool = false)
-        const { id, x, y } = data
-        console.log(playerIndex(id))
-        onCanvasClick({clientX: x,clientY: y}, id, true)
-        //boardRef.current.PLAYERS[playerIndex(id)].targetPos = { x, y }
-    });
 
     return (
         <div id="board">

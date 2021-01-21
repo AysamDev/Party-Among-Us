@@ -42,6 +42,7 @@ mongoose.connect(URI,
 io.on('connection', function (socket) {
   socket.on(JOIN_ROOM, async (data) => {
     await socket.join(data.room);
+    console.log(data.player);
     socket.to(data.room).emit(ADD_PLAYER, data.player);
   });
 
@@ -70,10 +71,10 @@ io.on('connection', function (socket) {
   });
 
   socket.on(MOVE_PLAYER, (data) => {
-    io.to(socket.room).emit(PLAYER_MOVED, data);
+    socket.to(data.room).emit(PLAYER_MOVED, data);
   });
 
-  // socket.on(SEND_MESSAGE, (data) => {
-  //   io.in(socket.room).emit(RECEIVED_MESSAGE, data);
-  // });
+  socket.on(SEND_MESSAGE, (data) => {
+    socket.to(data.room).emit(RECEIVED_MESSAGE, data);
+  });
 });

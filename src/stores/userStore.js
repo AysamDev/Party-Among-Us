@@ -9,7 +9,6 @@ const socketUrl = "http://localhost:4200";
 
 export class UserStore {
     constructor() {
-        this.playerMessage = ''
         this.socket = io(socketUrl)
         this.getRooms()
         this.onSocketMethods()
@@ -48,7 +47,6 @@ export class UserStore {
             rooms: observable,
             userName: observable,
             avatar: observable,
-            playerMessage: observable,
             room: observable,
             player_x: observable,
             player_y: observable,
@@ -88,19 +86,7 @@ export class UserStore {
 
     async setRoom(room) {
         this.room = room
-        this.socket.emit(JOIN_ROOM, {
-            room: this.room._id,
-            player: {
-                playerId: this.socket.id,
-                userName: this.userName,
-                avatar: this.avatar,
-                x: this.player_x,
-                y: this.player_y,
-                playerMessage: this.playerMessage,
-                theme: this.room.theme
-            }
-        })
-        this.socket.emit(ASK_FOR_VIDEO_INFORMATION);
+
     }
 
     compare(a, b) {
@@ -189,14 +175,6 @@ export class UserStore {
         }
     }
 
-    async sendMessage(message) {//sending it using socket
-        try {
-
-        } catch (error) {
-
-        }
-    }
-
     async addUser(userName, avatar) {
         try {
             this.userName = userName
@@ -204,6 +182,18 @@ export class UserStore {
             this.room.guests.push({ id: this.socket.id, userName, avatar })
             const body = { field: 'guests', newVal: this.room.guests }
             this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`, body)).data
+            this.socket.emit(JOIN_ROOM, {
+                room: this.room._id,
+                player: {
+                    playerId: this.socket.id,
+                    userName: this.userName,
+                    avatar: this.avatar,
+                    x: this.player_x,
+                    y: this.player_y,
+                    theme: this.room.theme
+                }
+            })
+            this.socket.emit(ASK_FOR_VIDEO_INFORMATION);
         } catch (error) {
             console.log(error)
         }

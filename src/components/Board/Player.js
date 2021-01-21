@@ -28,6 +28,7 @@ export default class Player extends Sprite {
     }
 
     sendMessage(message) {
+        message = message.trim();
         if (message) {
             if (message === '/dance') {
                 message = null;

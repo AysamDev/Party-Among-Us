@@ -15,6 +15,7 @@ export default class BoardCanvas {
 
     //change get img to get avatar length = 0 'now' but should be according to avatar color index
     newPlayer(playerProps) {
+        console.log(playerProps);
         const player = new Player(playerProps, this.CONTEXT, this.getImg(`spritePlayer0`)); //spritePlayer${avatarIndex}
         player.targetPos = BoardCanvas.DEFAULT_PLAYER_POS;
         this.PLAYERS.push(player);
