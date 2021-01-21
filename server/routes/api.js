@@ -36,6 +36,7 @@ router.post('/room', async function (req, res) {
 
 router.delete('/room/:roomID', async function (req, res) {
     try {
+        
         const room = await Room.findByIdAndRemove({ _id: req.params.roomID });
         res.send(room);
     } catch (error) {
@@ -75,6 +76,18 @@ router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
     } catch (error) {
         console.log(error);
         res.send(error);
+    }
+})
+
+router.put('/vote/:roomID/:songID/:value', async (req, res) => {
+    let {roomID, songID, value} = req.params
+    value = parseInt(value)
+    try {
+        const room = await Room.findOneAndUpdate({ "_id" :  roomID, "queue.id" : songID}, {$inc : {"queue.$.votes" : value } }, { new: true })
+        res.send(room)
+    } catch (error) {
+        console.log(error)
+        res.send(error)
     }
 })
 

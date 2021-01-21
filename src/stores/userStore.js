@@ -12,7 +12,7 @@ export class UserStore {
         this.socket = io(socketUrl)
         this.getRooms()
         this.onSocketMethods()
-        this.room = null
+        this.room = {}
         this.rooms = []
         this.player_x = 350
         this.player_y = 350
@@ -115,10 +115,8 @@ export class UserStore {
 
     async addLike(songID, unlike) {
         try {
-            const song = this.room.queue.find(q => q.id === songID)
-            song.votes = unlike ? song.votes - 1 : song.votes + 1
-            const body = { newVal: this.room.queue, field: 'queue' }
-            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`, body)).data
+            const value = unlike ? -1 : 1            
+            this.room = (await axios.put(`http://localhost:4200/vote/${this.room._id}/${songID}/${value}`)).data
         } catch (error) {
             console.log(error)
         }

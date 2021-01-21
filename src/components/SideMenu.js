@@ -7,7 +7,7 @@ import axios from 'axios';
 require('dotenv').config();
 
 function SideMenu(props) {
-    const {name, src} = props.UserStore.avatar;
+    const {src} = props.UserStore.avatar;
     const [song, setSong] = useState("");
     const [openSuggest, setOpenSuggest] = useState(false);
     const [items, setItems] = useState([]);
@@ -27,9 +27,15 @@ function SideMenu(props) {
 
     return (
         <div id="sideMenu" >
-            <div>
-                <img src={src} alt="avatar"/>
-                <h2>{name}</h2>
+            <div id="sideMenuHeader">
+                <div id="avatarUser">
+                    <img src={src} alt="avatar"/>
+                    <h3>{props.UserStore.userName}</h3>
+                </div>
+                <div id="roomNameDesc">
+                    <h2>{props.UserStore.room.roomName} </h2>
+                    <p>{props.UserStore.room.description}</p>
+                </div>
             </div>
             <Playlist />
             <TextField
@@ -40,7 +46,6 @@ function SideMenu(props) {
                 onKeyPress = {search}
                 onChange = {({target}) => setSong(target.value)}
             />
-            
             {items.length && openSuggest ?  <SuggestSong items={items} openSuggest={setOpenSuggest}/> : null}
         </div>
     )
