@@ -1,0 +1,80 @@
+.roomGrid{
+  height: 90vh;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-gap: 1vw;
+  margin: 1vh 1vw;
+}
+
+#header{
+  height: 8vh;
+  background-color: pink;
+}
+
+#board{
+  border: solid lightgray 0.1vw;
+}
+
+#sideMenu{
+  border: solid lightgray 0.1vw;
+  display: grid;
+  grid-template-rows: 0.7fr 1fr 0.3fr 0.3fr 0.3fr;
+  grid-gap: 0.5vw;
+}
+
+#sideMenu img{
+  height: 10vh;
+}
+
+#home{
+  display: grid;
+  grid-template-rows: 1fr 9fr;
+  grid-gap: 1vh;
+  margin: 1vh;
+  height: 90vh;
+  z-index: 0;
+}
+
+#createRoom{
+  height: 7vh;
+  margin-top: 1vh;
+}
+
+#userInfo{
+  padding: 1vh;
+}
+
+#top10{
+  display: grid;
+  grid-template-columns: repeat(3 , 1fr);
+  grid-gap: 1vh;
+}
+.tag{
+  background-color: lightslategray;
+}
+.roomResult{
+  text-align: center;
+  background-color: rgb(245, 197, 204);
+}
+.roomResult img {
+  width : 100%;
+}
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  #top10{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1vh;
+  }
+}
+
+#userActions{
+  display: grid;
+  grid-template-columns: 1fr 1fr ;
+  grid-gap: 10vw;
+}
+
+#createRoomPopUp{
+  width: 75vw;
+  height: 75vh;
+}
