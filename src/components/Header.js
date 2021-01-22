@@ -25,13 +25,13 @@ function Header(props) {
     return (
         <div id="header">
             <div>Logo</div>
-            {location.pathname === '/home' ?
-                <Button variant="contained" color="secondary" id="createRoom" onClick={popForm}>
-                    Create Room
-                </Button>
-                :
+            {location.pathname.includes('/room/') ?
                 <Button variant="contained" color="secondary" onClick={leave}>
                     Leave Room
+                </Button>
+                :
+                <Button variant="contained" color="secondary" id="createRoom" onClick={popForm}>
+                    Create Room
                 </Button>
             }
             {popUp && <CreateRoom open={setPopUp} />}

@@ -2,7 +2,7 @@ import { makeObservable, observable, action } from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
 import {
-    ASK_FOR_VIDEO_INFORMATION, JOIN_ROOM, ADD_PLAYER, PLAYER_MOVED
+    ASK_FOR_VIDEO_INFORMATION, JOIN_ROOM, LEAVE_ROOM
 } from '../Constants';
 
 const socketUrl = "http://localhost:4200";
@@ -11,7 +11,6 @@ export class UserStore {
     constructor() {
         this.socket = io(socketUrl)
         this.getRooms()
-        this.onSocketMethods()
         this.room = {}
         this.rooms = []
         this.player_x = 350
@@ -19,23 +18,23 @@ export class UserStore {
         this.userName = ""
         this.avatar = ""
         this.avatars = [
-            {name: "red" , src: "./img/avatar_red.png"},
-            {name: "white", src: "./img/avatar_white.png"},
-            {name: "orange" , src: "./img/avatar_orange.png"},
-            {name: "yellow", src: "./img/avatar_yellow.png"},
-            {name: "pink" , src: "./img/avatar_pink.png"},
-            {name: "purple", src: "./img/avatar_purple.png"},
-            {name: "blue", src: "./img/avatar_blue.png"},
-            {name: "cyan", src: "./img/avatar_cyan.png"},
-            {name: "lime", src: "./img/avatar_lime.png"},
-            {name: "black", src: "./img/avatar_black.png"},
+            {name: "spritePlayer0" , src: "./img/avatar_red.png"},
+            {name: "spritePlayer1", src: "./img/avatar_yellow.png"},
+            {name: "spritePlayer2" , src: "./img/avatar_orange.png"},
+            {name: "spritePlayer3", src: "./img/avatar_white.png"},
+            {name: "spritePlayer4", src: "./img/avatar_lime.png"},
+            {name: "spritePlayer5" , src: "./img/avatar_pink.png"},
+            {name: "spritePlayer6", src: "./img/avatar_cyan.png"},
+            {name: "spritePlayer7", src: "./img/avatar_black.png"},
+            {name: "spritePlayer8", src: "./img/avatar_purple.png"},
+            {name: "spritePlayer9", src: "./img/avatar_blue.png"}
         ]
-        
+
         this.genres = ["Blues", "Classical", "Hip-Hop",
                         "Children", "Comedy", "Dance", "Electronic",
                         "Pop", "Jazz", "Anime", "K-Pop", "Opera",
                         "Rock", "Vocal", "Arabic" ]
-    
+
         this.themes=[
             {name: "Icy", value: "theme1"},
             {name: "Sky", value: "theme2"},
@@ -52,7 +51,7 @@ export class UserStore {
             {name: "Astro", value: "theme13"},
             {name: "Snowy", value: "theme14"},
         ]
-        
+
         makeObservable(this, {
             rooms: observable,
             userName: observable,
@@ -70,19 +69,6 @@ export class UserStore {
             addLike: action,
             deleteRoom: action,
         })
-    }
-
-    onSocketMethods() {
-        this.socket.on('connect', () => {
-
-        });
-
-        this.socket.on('disconnect', () => {
-            if (this.room) {
-                this.LeaveRoom()
-            }
-            console.log("Disconnected");
-        });
     }
 
     async getRooms() {
@@ -115,7 +101,7 @@ export class UserStore {
 
     async addLike(songID, unlike) {
         try {
-            const value = unlike ? -1 : 1            
+            const value = unlike ? -1 : 1
             this.room = (await axios.put(`http://localhost:4200/vote/${this.room._id}/${songID}/${value}`)).data
         } catch (error) {
             console.log(error)
@@ -149,10 +135,11 @@ export class UserStore {
     }
 
     async LeaveRoom(){
-        try {   
-            const response = (await axios.delete(`http://localhost:4200/delete/${this.room._id}/${this.socket.id}/guests`)).data
+        try {
+            await axios.delete(`http://localhost:4200/delete/${this.room._id}/${this.socket.id}/guests`)
             this.room = null
             this.getRooms()
+            this.socket.emit(LEAVE_ROOM);
         } catch (error) {
             console.log(error)
         }
@@ -160,7 +147,7 @@ export class UserStore {
 
     async deleteRoom() {
         try {
-            const response = await axios.delete(`http://localhost:4200/room/${this.room._id}`)
+            await axios.delete(`http://localhost:4200/room/${this.room._id}`)
             this.room = null
             this.getRooms()
         } catch (error) {
@@ -172,7 +159,6 @@ export class UserStore {
         try {
             const newVal = {newObj: {id, song, votes: 1}}
             this.room = (await axios.put(`http://localhost:4200/add/${this.room._id}/queue`, newVal)).data
-            console.log(this.room)
         } catch (error) {
             console.log(error)
         }
@@ -190,7 +176,7 @@ export class UserStore {
                 player: {
                     playerId: this.socket.id,
                     userName: this.userName,
-                    avatar: this.avatar,
+                    avatar: this.avatar.name,
                     x: this.player_x,
                     y: this.player_y,
                     theme: this.room.theme

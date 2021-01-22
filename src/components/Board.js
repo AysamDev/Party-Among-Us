@@ -32,7 +32,7 @@ const Board = observer((props) => {
 
     const webSocket = useRef(props.UserStore.socket)
 
-    let { userName, avatar, player_x, player_y, room, width, height } = props.UserStore
+    let { room } = props.UserStore
 
     const playerIndex = (socket_id) => {
         const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id)
@@ -71,22 +71,17 @@ const Board = observer((props) => {
     }
 
     const onCanvasClick = (e) => {
-
-        console.log(boardRef.current.PLAYERS);
-
         const rect = canvasRef.current.getBoundingClientRect();
         let x = Math.floor(e.clientX - rect.left);
         let y = Math.floor(e.clientY - rect.top);
 
         const playerId = webSocket.current.id;
-        console.log(playerIndex(playerId))
         if (x + boardRef.current.PLAYERS[playerIndex(playerId)].width > canvasRef.current.width)
             x = x - boardRef.current.PLAYERS[playerIndex(playerId)].width;
 
         if (y + boardRef.current.PLAYERS[playerIndex(playerId)].height > canvasRef.current.height)
             y = y - boardRef.current.PLAYERS[playerIndex(playerId)].height;
 
-        console.log(webSocket.current.id);
         webSocket.current.emit(MOVE_PLAYER, {
             id: webSocket.current.id,
             x: x,
@@ -98,24 +93,10 @@ const Board = observer((props) => {
     }
 
     useEffect(() => {
-        console.log('??????????????????????')
-        //webSocket.current = props.UserStore.socket
-        // const playerProps = {
-        //     playerId: webSocket.current.id,
-        //     userName: userName,
-        //     avatar: avatar,
-        //     width: width,
-        //     height: height,
-        //     x: player_x,
-        //     y: player_y,
-        //     playerMessage: playerMessage,
-        //     theme: room.theme
-        // }
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         boardRef.current = new BoardCanvas(canvas, context, theme);
-        //boardRef.current.PLAYERS = []
-        console.log(room.guests);
+
         room.guests.forEach(g => boardRef.current.newPlayer({
             playerId: g.id,
             userName: g.userName,
@@ -130,7 +111,6 @@ const Board = observer((props) => {
         boardRef.current.start();
 
         webSocket.current.on(ADD_PLAYER, (data) => {
-            console.log(data)
             boardRef.current.newPlayer({
                 playerId: data.playerId,
                 userName: data.userName,
@@ -144,17 +124,12 @@ const Board = observer((props) => {
         });
 
         webSocket.current.on(PLAYER_MOVED, (data) => {
-            // e = ({clientX = x, clientY = y}, id = socket.id, bool = false)
             const { id, x, y } = data;
-            console.log(playerIndex(id));
-            //onCanvasClick({clientX: x, clientY: y}/*, id, true*/)
             boardRef.current.PLAYERS[playerIndex(id)].targetPos = { x, y };
         });
 
         webSocket.current.on(RECEIVED_MESSAGE, (data) => {
             const { message, id } = data
-            //playerMessage = message
-            console.log(message);
             boardRef.current.PLAYERS[playerIndex(id)].sendMessage(message);
         });
     }, []);
@@ -173,20 +148,20 @@ const Board = observer((props) => {
             <FormControl className={classes.selectTheme}>
                 <InputLabel color="secondary">Select a theme:</InputLabel>
                 <NativeSelect value={theme} onChange={onSelectTheme} name="select_theme" color="secondary">
-                    <option value="theme1.jpg">Icy</option>
-                    <option value="theme2.jpg">Sky</option>
-                    <option value="theme3.jpg">Thunder</option>
-                    <option value="theme4.jpg">Halloween1</option>
-                    <option value="theme5.jpg">Halloween2</option>
-                    <option value="theme6.jpg">WildZone</option>
-                    <option value="theme7.jpg">Medieval</option>
-                    <option value="theme8.jpg">Disco</option>
-                    <option value="theme9.jpg">DiscoStar</option>
-                    <option value="theme10.jpg">PlantWorld</option>
-                    <option value="theme11.jpg">DJ.Penguin</option>
-                    <option value="theme12.jpg">Splash</option>
-                    <option value="theme13.jpg">Astro</option>
-                    <option value="theme14.jpg">Snowy</option>
+                    <option value="theme1">Icy</option>
+                    <option value="theme2">Sky</option>
+                    <option value="theme3">Thunder</option>
+                    <option value="theme4">Halloween1</option>
+                    <option value="theme5">Halloween2</option>
+                    <option value="theme6">WildZone</option>
+                    <option value="theme7">Medieval</option>
+                    <option value="theme8">Disco</option>
+                    <option value="theme9">DiscoStar</option>
+                    <option value="theme10">PlantWorld</option>
+                    <option value="theme11">DJ.Penguin</option>
+                    <option value="theme12">Splash</option>
+                    <option value="theme13">Astro</option>
+                    <option value="theme14">Snowy</option>
                 </NativeSelect>
             </FormControl>
         </div>

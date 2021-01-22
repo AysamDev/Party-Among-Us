@@ -36,7 +36,6 @@ router.post('/room', async function (req, res) {
 
 router.delete('/room/:roomID', async function (req, res) {
     try {
-        
         const room = await Room.findByIdAndRemove({ _id: req.params.roomID });
         res.send(room);
     } catch (error) {
@@ -67,6 +66,7 @@ router.put('/add/:roomID/:field', async function (req, res) {
         res.send(error);
     }
 })
+
 
 router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
     const { roomID, objectID, field } = req.params

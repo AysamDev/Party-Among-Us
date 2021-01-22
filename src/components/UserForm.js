@@ -37,7 +37,7 @@ function UserForm(props) {
 
     const openRoom = () => {
         if (!userName || !avatar) {
-            enqueueSnackbar('some fields are missing', { variant: 'warning' })
+            enqueueSnackbar('Missing Fields', { variant: 'error' })
         } else {
             props.UserStore.addUser(userName, avatar)
             props.open(false)

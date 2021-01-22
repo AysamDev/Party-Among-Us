@@ -43,7 +43,7 @@ function CreateRoom(props) {
 
     const createRoom = () => {
         if (!roomName || !theme) {
-            enqueueSnackbar('some fields are missing', { variant: 'warning' })
+            enqueueSnackbar('Missing Fields', { variant: 'error' })
         } else {
             props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme)
             handleClose()

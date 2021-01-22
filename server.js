@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const api = require('./server/routes/api');
+const Room = require('./server/models/Room.js');
 const PORT = process.env.PORT || 4200;
 const URI = process.env.MONGODB_URI || 'mongodb://localhost/roomsDB';
 const app = express()
@@ -14,7 +15,7 @@ const io = require('socket.io')(server, {
 
 const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO,
   ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION,
-  JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED } = require('./src/Constants');
+  JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM } = require('./src/Constants');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -41,10 +42,21 @@ mongoose.connect(URI,
   });
 
 io.on('connection', function (socket) {
+  let current_room;
   socket.on(JOIN_ROOM, async (data) => {
+    current_room = data.room;
     await socket.join(data.room);
-    console.log(data.player);
     socket.to(data.room).emit(ADD_PLAYER, data.player);
+  });
+
+  socket.on(LEAVE_ROOM, () => {
+    current_room = null;
+  });
+
+  socket.on('disconnect', async(data) => {
+    if (current_room) {
+      await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
+    }
   });
 
   socket.on(PLAY, () => {
