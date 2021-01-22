@@ -20,9 +20,14 @@ function Room(props) {
     }, []);
 
     const checkValidity = async () => {
-        const roomID = location.pathname.split('/')[2]
+        const url = location.pathname.split('/')
+        const roomID = url[2]
         await props.UserStore.getRooms()
         const room = props.UserStore.rooms.find(r => r._id === roomID)
+        if(url.length > 3 && url[3] === 'host'){
+            setOpen(false)
+            return ;
+        }
         if(room && room.guests.length < room.size){
             if(room.roomPassword){
                 setPrompt(true)
@@ -50,8 +55,6 @@ function Room(props) {
             {alert.value && <Alert text={alert.text} />}
             {prompt && <Prompt setOpen={setOpen} />}
             {open === false && (
-                <>
-                
                 <div className="roomGrid">
                     <SideMenu />
                     <Board />
@@ -59,7 +62,6 @@ function Room(props) {
                         Delete Room
                     </Button>}
                 </div>
-                </>
             )}
         </div>
     )

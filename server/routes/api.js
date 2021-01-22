@@ -56,7 +56,7 @@ router.put('/room/:roomID', async function (req, res) {
 })
 
 router.put('/add/:roomID/:field', async function (req, res) {
-    const { newObj } = req.body
+    const newObj = req.body
     const { roomID, field } = req.params
     try {
         const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': {[field]: newObj} }, { new: true });

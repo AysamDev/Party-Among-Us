@@ -33,13 +33,11 @@ function UserForm(props) {
     const [avatar, setAvatar] = useState("")
     const { enqueueSnackbar } = useSnackbar();
 
-    // const avatarOptions = props.UserStore.avatars.map((a, i )=> ({label: a.name, value: i}))
-
-    const openRoom = () => {
+    const openRoom = async () => {
         if (!userName || !avatar) {
             enqueueSnackbar('Missing Fields', { variant: 'error' })
         } else {
-            props.UserStore.addUser(userName, avatar)
+            await props.UserStore.addUser(userName, avatar)
             props.open(false)
         }
     }
