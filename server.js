@@ -12,7 +12,7 @@ const io = require('socket.io')(server, {
   }
 });
 
-const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER,
+const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST,
   ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
   JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM } = require('./src/Constants');
 
@@ -41,8 +41,11 @@ mongoose.connect(URI,
   });
 
 io.on('connection', function (socket) {
+  let current_room
+
   socket.on(JOIN_ROOM, async (data) => {
     await socket.join(data.room);
+    current_room = data.room
     data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
     socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
   });
@@ -65,6 +68,7 @@ io.on('connection', function (socket) {
       socket.to(current_room).emit(REMOVE_PLAYER, socket.id)
       await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
     }
+  });
  
   socket.on(SYNC_TIME, (data) => {
     socket.to(data.room).emit(SYNC_TIME, data);
@@ -96,5 +100,9 @@ io.on('connection', function (socket) {
 
   socket.on(VOTE_SONG, (data) => {
     socket.to(data.room).emit(VOTE_SONG, data);
+  })
+
+  socket.on(NEW_PLAYER_HOST, (data) => { 
+    io.to(data.socket).emit(NEW_PLAYER_HOST, data.players)
   })
 });

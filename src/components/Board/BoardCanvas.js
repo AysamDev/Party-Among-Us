@@ -13,9 +13,9 @@ export default class BoardCanvas {
         this.drawingLoop = this.drawingLoop.bind(this);
     }
 
-    newPlayer(playerProps) {
+    newPlayer(playerProps, pos) {
         const player = new Player(playerProps, this.CONTEXT, this.getImg(playerProps.avatar+'.png'));
-        player.targetPos = BoardCanvas.DEFAULT_PLAYER_POS;
+        player.targetPos = pos ? pos : BoardCanvas.DEFAULT_PLAYER_POS;
         this.PLAYERS.push(player);
     }
 

@@ -7,7 +7,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import InputEmoji from "react-input-emoji";
 import { observer, inject } from 'mobx-react'
-import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE, REMOVE_PLAYER} from '../Constants';
+import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE, REMOVE_PLAYER, NEW_PLAYER_HOST} from '../Constants';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -32,7 +32,7 @@ const Board = observer((props) => {
 
     const webSocket = useRef(props.UserStore.socket)
 
-    let { room } = props.UserStore
+    let { room,  userName, avatar} = props.UserStore
 
     const playerIndex = (socket_id) => {
         const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id)
@@ -97,16 +97,42 @@ const Board = observer((props) => {
         const context = canvas.getContext('2d');
         boardRef.current = new BoardCanvas(canvas, context, theme);
 
-        room.guests.forEach(g => boardRef.current.newPlayer({
-            playerId: g.id,
-            userName: g.userName,
-            avatar: g.avatar,
-            x: 350,
-            y: 350,
-            width: 85,
-            height: 85,
-            theme: room.theme
-        }));
+        if(webSocket.current.id === room.host){
+            room.guests.forEach(g => boardRef.current.newPlayer({
+                playerId: g.id,
+                userName: g.userName,
+                avatar: g.avatar,
+                x: 350,
+                y: 350,
+                width: 85,
+                height: 85,
+                theme: room.theme
+            }));
+        }else{
+            webSocket.current.on(NEW_PLAYER_HOST, (data) => {
+                data.forEach(d => boardRef.current.newPlayer({
+                    width: d.width,
+                    height: d.height,
+                    playerId: d.playerId,
+                    userName: d.userName,
+                    avatar: d.avatar,
+                    theme: d.theme,
+                    x: d.x,
+                    y: d.y,
+                }, { x: data.x, y: data.y}))
+            })
+        }
+
+        // room.guests.forEach(g => boardRef.current.newPlayer({
+        //     playerId: g.id,
+        //     userName: g.userName,
+        //     avatar: g.avatar,
+        //     x: 350,
+        //     y: 350,
+        //     width: 85,
+        //     height: 85,
+        //     theme: room.theme
+        // }));
 
         boardRef.current.start();
 
@@ -121,6 +147,9 @@ const Board = observer((props) => {
                 width: 85,
                 theme: data.theme
             });
+            if(webSocket.current.id === room.host){
+                webSocket.current.emit(NEW_PLAYER_HOST, {players: boardRef.current.PLAYERS, socket: data.playerId})
+            }
         });
 
         webSocket.current.on(PLAYER_MOVED, (data) => {
