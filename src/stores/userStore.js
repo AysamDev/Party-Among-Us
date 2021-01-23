@@ -17,39 +17,43 @@ export class UserStore {
         this.player_y = 350
         this.userName = ""
         this.avatar = ""
+        this.currVidId = ''
+        this.vidPlayer = null
+        this.currentVidTime = 0
+        this.nextVidId = ''
         this.avatars = [
-            {name: "spritePlayer0" , src: "./img/avatar_red.png"},
-            {name: "spritePlayer1", src: "./img/avatar_yellow.png"},
-            {name: "spritePlayer2" , src: "./img/avatar_orange.png"},
-            {name: "spritePlayer3", src: "./img/avatar_white.png"},
-            {name: "spritePlayer4", src: "./img/avatar_lime.png"},
-            {name: "spritePlayer5" , src: "./img/avatar_pink.png"},
-            {name: "spritePlayer6", src: "./img/avatar_cyan.png"},
-            {name: "spritePlayer7", src: "./img/avatar_black.png"},
-            {name: "spritePlayer8", src: "./img/avatar_purple.png"},
-            {name: "spritePlayer9", src: "./img/avatar_blue.png"}
+            { name: "spritePlayer0", src: "./img/avatar_red.png" },
+            { name: "spritePlayer1", src: "./img/avatar_yellow.png" },
+            { name: "spritePlayer2", src: "./img/avatar_orange.png" },
+            { name: "spritePlayer3", src: "./img/avatar_white.png" },
+            { name: "spritePlayer4", src: "./img/avatar_lime.png" },
+            { name: "spritePlayer5", src: "./img/avatar_pink.png" },
+            { name: "spritePlayer6", src: "./img/avatar_cyan.png" },
+            { name: "spritePlayer7", src: "./img/avatar_black.png" },
+            { name: "spritePlayer8", src: "./img/avatar_purple.png" },
+            { name: "spritePlayer9", src: "./img/avatar_blue.png" }
         ]
 
         this.genres = ["Blues", "Classical", "Hip-Hop",
-                        "Children", "Comedy", "Dance", "Electronic",
-                        "Pop", "Jazz", "Anime", "K-Pop", "Opera",
-                        "Rock", "Vocal", "Arabic" ]
+            "Children", "Comedy", "Dance", "Electronic",
+            "Pop", "Jazz", "Anime", "K-Pop", "Opera",
+            "Rock", "Vocal", "Arabic"]
 
-        this.themes=[
-            {name: "Icy", value: "theme1"},
-            {name: "Sky", value: "theme2"},
-            {name: "Thunder", value: "theme3"},
-            {name: "Halloween1", value: "theme4"},
-            {name: "Halloween2", value: "theme5"},
-            {name: "WildZone", value: "theme6"},
-            {name: "Medieval", value: "theme7"},
-            {name: "Disco", value: "theme8"},
-            {name: "DiscoStar", value: "theme9"},
-            {name: "PlantWorld", value: "theme10"},
-            {name: "DJ.Penguin", value: "theme11"},
-            {name: "Splash", value: "theme12"},
-            {name: "Astro", value: "theme13"},
-            {name: "Snowy", value: "theme14"},
+        this.themes = [
+            { name: "Icy", value: "theme1" },
+            { name: "Sky", value: "theme2" },
+            { name: "Thunder", value: "theme3" },
+            { name: "Halloween1", value: "theme4" },
+            { name: "Halloween2", value: "theme5" },
+            { name: "WildZone", value: "theme6" },
+            { name: "Medieval", value: "theme7" },
+            { name: "Disco", value: "theme8" },
+            { name: "DiscoStar", value: "theme9" },
+            { name: "PlantWorld", value: "theme10" },
+            { name: "DJ.Penguin", value: "theme11" },
+            { name: "Splash", value: "theme12" },
+            { name: "Astro", value: "theme13" },
+            { name: "Snowy", value: "theme14" },
         ]
 
         makeObservable(this, {
@@ -59,7 +63,12 @@ export class UserStore {
             room: observable,
             player_x: observable,
             player_y: observable,
+            vidPlayer: observable,
+            currVidId: observable,
+            currentVidTime: observable,
+            nextVidId: observable,
             createRoom: action,
+            removeSong: action,
             getRoom: action,
             getRooms: action,
             setRoom: action,
@@ -165,7 +174,7 @@ export class UserStore {
         }
     }
 
-    async LeaveRoom(){
+    async LeaveRoom() {
         try {
             await axios.delete(`http://localhost:4200/delete/${this.room._id}/${this.socket.id}/guests`)
             this.room = null
@@ -201,6 +210,17 @@ export class UserStore {
         }
     }
 
+    async removeSong(vidId){
+        try {
+            this.room = (await axios.delete(`http://localhost:4200/delete/${this.room._id}/${vidId}/queue`)).data
+            console.log(this.room.queue)
+            console.log('hello?')
+            this.room.splice(0, 1) ///////////////come back to this
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async addUser(userName, avatar) {
         try {
             this.userName = userName
@@ -218,7 +238,6 @@ export class UserStore {
                     theme: this.room.theme
                 }
             })
-            this.socket.emit(ASK_FOR_VIDEO_INFORMATION);
         } catch (error) {
             console.log(error)
         }

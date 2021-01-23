@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const api = require('./server/routes/api');
-const Room = require('./server/models/Room.js');
 const PORT = process.env.PORT || 4200;
 const URI = process.env.MONGODB_URI || 'mongodb://localhost/roomsDB';
 const app = express()
@@ -42,12 +41,19 @@ mongoose.connect(URI,
   });
 
 io.on('connection', function (socket) {
-  let current_room;
   socket.on(JOIN_ROOM, async (data) => {
-    current_room = data.room;
     await socket.join(data.room);
     data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
+    socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
   });
+
+  socket.on(PLAY, (data) => {
+    socket.to(data.room).emit(PLAY);
+  });
+
+  socket.on(PAUSE, (data) => {
+    socket.to(data.room).emit(PAUSE);
+   });
 
   socket.on(LEAVE_ROOM, () => {
     socket.to(current_room).emit(REMOVE_PLAYER, socket.id)
@@ -59,30 +65,21 @@ io.on('connection', function (socket) {
       socket.to(current_room).emit(REMOVE_PLAYER, socket.id)
       await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
     }
+ 
+  socket.on(SYNC_TIME, (data) => {
+    socket.to(data.room).emit(SYNC_TIME, data);
   });
 
-  socket.on(PLAY, () => {
-    socket.to(socket.room).emit(PLAY);
+  socket.on(NEW_VIDEO, (data) => {
+    io.to(data.room).emit(NEW_VIDEO, data);
   });
 
-  socket.on(PAUSE, () => {
-    socket.to(socket.room).emit(PAUSE);
-  });
-
-  socket.on(SYNC_TIME, (currentTime) => {
-    socket.to(socket.room).emit(SYNC_TIME, currentTime);
-  });
-
-  socket.on(NEW_VIDEO, (videoURL) => {
-    io.to(socket.room).emit(NEW_VIDEO, videoURL);
-  });
-
-  socket.on(ASK_FOR_VIDEO_INFORMATION, () => {
-    socket.to(socket.room).emit(ASK_FOR_VIDEO_INFORMATION);
+  socket.on(ASK_FOR_VIDEO_INFORMATION, (data) => {
+    socket.to(data.room).emit(ASK_FOR_VIDEO_INFORMATION);
   });
 
   socket.on(SYNC_VIDEO_INFORMATION, (data) => {
-    io.to(socket.room).emit(SYNC_VIDEO_INFORMATION, data);
+    io.to(data.room).emit(SYNC_VIDEO_INFORMATION, data);
   });
 
   socket.on(MOVE_PLAYER, (data) => {
