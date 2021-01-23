@@ -3,14 +3,14 @@ import {Avatar} from '@material-ui/core';
 import { observer, inject } from 'mobx-react';
 
 function AvatarOption(props) {
-    const {avatar, setAvatar} = props;
+    const {avatar, setAvatar, create} = props
 
     const isAvatarInRoom = () => {
-        return props.UserStore.room.guests.find(g => g.avatar === avatar.name);
+        return create ? false : props.UserStore.room.guests.find(g => g.avatar === avatar.name);
     }
 
     const radioChange = () => {
-        const radio = document.getElementById(avatar.name)
+        const radio = document.getElementById(avatar.name);
         if(radio.disabled) {
             setAvatar("");
         }

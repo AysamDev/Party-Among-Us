@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import InputEmoji from "react-input-emoji";
 import { observer, inject } from 'mobx-react';
 import Alert from './Alert';
-import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE } from '../Constants';
+import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE, REMOVE_PLAYER } from '../Constants';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -148,6 +148,12 @@ const Board = observer((props) => {
             const { message, id } = data;
             boardRef.current.PLAYERS[playerIndex(id)].sendMessage(message);
         });
+
+        webSocket.current.on(REMOVE_PLAYER, (data) => {
+            const index = playerIndex(data)
+            boardRef.current.PLAYERS.splice(index, 1)
+        })
+
     }, []);
 
     return (

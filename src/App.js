@@ -12,7 +12,7 @@ function App() {
 				<Header />
 				<Route path="/" exact render={() => <Home />} />
 				<Route exact path="/home" render={() => <Home />} />
-				<Route path="/room/:id" exact render={() => <Room />} />
+				<Route path="/room/:id" render={() => <Room />} />
 			</Router>
 		</div>
 	)

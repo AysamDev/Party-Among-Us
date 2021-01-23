@@ -15,8 +15,8 @@ const io = require('socket.io')(server, {
 	pingTimeout: 5000
 });
 
-const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO,
-	ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION,
+const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER,
+	ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
 	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM, API_PATH } = require('./src/Constants');
 
 app.use(express.json());
@@ -46,16 +46,19 @@ io.on('connection', function (socket) {
 	socket.on(JOIN_ROOM, async (data) => {
 		current_room = data.room;
 		await socket.join(data.room);
-		socket.to(data.room).emit(ADD_PLAYER, data.player);
+		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
 	});
 
 	socket.on(LEAVE_ROOM, () => {
+		socket.to(current_room).emit(REMOVE_PLAYER, socket.id);
 		current_room = null;
 	});
 
 	socket.on('disconnect', async(data) => {
-		if (current_room)
-			await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
+		if (current_room) {
+		socket.to(current_room).emit(REMOVE_PLAYER, socket.id);
+		await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
+		}
 	});
 
 	socket.on(PLAY, () => {
@@ -89,4 +92,12 @@ io.on('connection', function (socket) {
 	socket.on(SEND_MESSAGE, (data) => {
 		socket.to(data.room).emit(RECEIVED_MESSAGE, data);
 	});
+
+	socket.on(SUGGEST_SONG, (data) => {
+		socket.to(data.room).emit(NEW_SONG, data);
+	})
+
+	socket.on(VOTE_SONG, (data) => {
+		socket.to(data.room).emit(VOTE_SONG, data);
+	})
 });

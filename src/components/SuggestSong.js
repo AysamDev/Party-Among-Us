@@ -26,7 +26,7 @@ function SuggestSong(props) {
         const {id, innerHTML} = event.target;
         await props.UserStore.getRoom();
         const ifPreviouslyAdded = props.UserStore.room.queue.find(q => q.id === id);
-        ifPreviouslyAdded ? props.UserStore.addLike(id) : await props.UserStore.suggestSong(id, innerHTML);
+        ifPreviouslyAdded ? await props.UserStore.addLike(id) : await props.UserStore.suggestSong(id, innerHTML);
         handleClose();
     }
 
