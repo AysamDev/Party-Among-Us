@@ -6,7 +6,7 @@ const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
 
 export class UserStore {
     constructor() {
-        this.socket = io(SERVER_URL);
+        this.socket = io(SERVER_PATH);
         this.getRooms();
         this.room = {};
         this.rooms = [];
@@ -160,9 +160,9 @@ export class UserStore {
         }
     }
 
-    async getRoom() {
+    async getRoom(id) {
         try {
-            const result = (await axios.get(`${SERVER_URL}/room`, this.room._id)).data;
+            const result = (await axios.get(`${SERVER_URL}/room/${id}`)).data;
             this.room = result;
         } catch (error) {
             console.log(error);

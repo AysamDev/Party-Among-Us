@@ -123,8 +123,8 @@ const Board = observer((props) => {
                 playerId: g.id,
                 userName: g.userName,
                 avatar: g.avatar,
-                x: 350,
-                y: 350,
+                x: props.UserStore.player_x,
+                y: props.UserStore.player_y,
                 width: 85,
                 height: 85,
                 theme: room.theme
