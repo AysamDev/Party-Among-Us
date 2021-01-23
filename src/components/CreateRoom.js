@@ -26,37 +26,36 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function CreateRoom(props) {
-    const [roomName, setRoomName] = useState("");
-    const [roomPassword, setRoomPassword] = useState("");
-    const [description, setDescription] = useState("");
-    const [tags, setTags] = useState([]);
-    const [theme, setTheme] = useState("");
-    const [userName, setUserName] = useState("")
-    const [avatar, setAvatar] = useState("")
-    const { enqueueSnackbar } = useSnackbar();
-    const history = useHistory();
-    const classes = useStyles();
+    const [roomName, setRoomName] = useState(""),
+    [roomPassword, setRoomPassword] = useState(""),
+    [description, setDescription] = useState(""),
+    [tags, setTags] = useState([]),
+    [theme, setTheme] = useState(""),
+    [userName, setUserName] = useState(""),
+    [avatar, setAvatar] = useState(""),
+    { enqueueSnackbar } = useSnackbar(),
+    history = useHistory(),
+    classes = useStyles();
 
-    const {genres, themes } = props.UserStore
-    const tagOptions = genres.map((g, i) => ({ label: g, value: i }))
-    const themeOptions = themes.map(t => ({ label: t.name, value: t.value }))
+    const {genres, themes } = props.UserStore;
+    const tagOptions = genres.map((g, i) => ({ label: g, value: i }));
+    const themeOptions = themes.map(t => ({ label: t.name, value: t.value }));
 
     const handleClose = () => {
-        props.open(false)
+        props.open(false);
     };
 
     const updateSelect = (event) => {
-        setTags(event ? event : [])
+        setTags(event ? event : []);
     }
 
     const createRoom = async () => {
         if (!roomName || !theme || !userName || !avatar ) {
-            enqueueSnackbar('Missing Fields', { variant: 'error' })
+            enqueueSnackbar('Missing Fields', { variant: 'error' });
         } else {
-            console.log(avatar)
-            await props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme, userName, avatar)
-            history.push(`/room/${props.UserStore.room._id}/host`)
-            handleClose()
+            await props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme, userName, avatar);
+            history.push(`/room/${props.UserStore.room._id}/host`);
+            handleClose();
         }
     }
 
@@ -86,8 +85,8 @@ function CreateRoom(props) {
                         />
                         <TextField
                             id="roomPassword"
+                            label="Password"
                             placeholder="Password (optional)"
-                            label="Password (for Private Room)"
                             type="password"
                             variant="outlined"
                             value={roomPassword}
@@ -107,13 +106,13 @@ function CreateRoom(props) {
                             options={tagOptions}
                             className="basic-multi-select"
                             classNamePrefix="select"
-                            placeholder="Select Tags"
+                            placeholder="Tags"
                             onChange={updateSelect}
                         />
                         <Select
                             options={themeOptions}
                             onChange={event => setTheme(event ? event.value : "")}
-                            placeholder="Select Theme"
+                            placeholder="Theme"
                             isClearable="true" id="themeSelect"
                         />
                         <TextField
@@ -138,4 +137,4 @@ function CreateRoom(props) {
     )
 }
 
-export default inject("UserStore")(observer(CreateRoom))
+export default inject("UserStore")(observer(CreateRoom));

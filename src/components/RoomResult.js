@@ -12,18 +12,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function RoomResult(props) {
-    const { roomPassword, roomName, theme, guests, size, description, tags } = props.room
-    let history = useHistory()
+    const { roomPassword, roomName, theme, guests, size, description, tags } = props.room;
+    let history = useHistory();
     const classes = useStyles();
 
     const openRoom = () => {
-        props.UserStore.getRoom(props.id)
-        history.push(`/room/${props.id}`)
+        props.UserStore.getRoom(props.id);
+        history.push(`/room/${props.id}`);
     }
 
     return (
         <div className="roomResult" onClick={openRoom} >
-            <img src={`./img/${theme}.jpg`} alt="Theme" />
+            <img src={`./img/theme${theme}.jpg`} alt="Theme" />
             <h3>{roomName}</h3>
             {tags.map((t, i) => <Chip label={t} key={i} className={classes.chip} />)}
             <p>{description}</p>
@@ -33,4 +33,4 @@ function RoomResult(props) {
     )
 }
 
-export default inject("UserStore")(observer(RoomResult))
+export default inject("UserStore")(observer(RoomResult));

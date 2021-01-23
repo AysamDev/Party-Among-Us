@@ -5,8 +5,8 @@ import { Provider } from 'mobx-react';
 import { UserStore as userStore } from './stores/userStore';
 import { SnackbarProvider } from 'notistack';
 
-const UserStore = new userStore()
-const stores = {UserStore}
+const UserStore = new userStore();
+const stores = {UserStore};
 
 ReactDOM.render(
   <Provider {...stores}>

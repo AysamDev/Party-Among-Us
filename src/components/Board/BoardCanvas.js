@@ -2,61 +2,51 @@ import SpeechBubble from './SpeechBubble.js';
 import Player from './Player.js';
 
 export default class BoardCanvas {
-    static DEFAULT_PLAYER_POS = { x: 350, y: 350 };
+    static DEFAULT_PLAYER_POS = { x: 815, y: 487};
 
     constructor(canvas, context, theme) {
-        this.IS_RUNNING = true;
-        this.THEME = theme;
+        this.IS_RUNNING = false;
+        this.THEME = parseInt(theme);
         this.CANVAS = canvas;
         this.CONTEXT = context;
+        this.CONTEXT.textBaseline = "hanging";
         this.PLAYERS = [];
+        this.IMGS = [];
         this.drawingLoop = this.drawingLoop.bind(this);
+        this.loadImages();
+    }
+
+    loadImages() {
+        for (let i = 0; i < 10; i++) {
+            const img = new Image();
+            img.src = `./img/spritePlayer${i}.png`;
+            this.IMGS.push(img);
+        }
+
+        for (let i = 10; i < 24; i++) {
+            const img = new Image();
+            img.src = `./img/theme${i-10}.jpg`;
+            this.IMGS.push(img);
+        }
     }
 
     newPlayer(playerProps) {
-        const player = new Player(playerProps, this.CONTEXT, this.getImg(playerProps.avatar+'.png'));
+        const player = new Player(playerProps, this.CONTEXT, this.IMGS[playerProps.avatar]);
         player.targetPos = BoardCanvas.DEFAULT_PLAYER_POS;
         this.PLAYERS.push(player);
     }
 
     changeTheme(theme) {
-        this.THEME = theme;
+        this.THEME = parseInt(theme);
     }
 
     stop() {
         this.IS_RUNNING = false;
     }
 
-    async start() {
-        const imagesArray = () => {
-            const arr = [];
-            for (let i = 1; i <= 14; i++)
-                arr.push(`./img/theme${i}.jpg`);
-            for (let i = 0; i < 10; i++)
-                arr.push(`./img/spritePlayer${i}.png`);
-            return arr;
-        }
-
-        const preloadImage = src =>
-            new Promise(r => {
-                const image = new Image();
-                image.onload = r;
-                image.onerror = r;
-                image.src = src;
-            }
-            );
-
-        await Promise.all(imagesArray().map(m => preloadImage(m)));
-
-        //start loop
+    start() {
+        this.IS_RUNNING = true;
         this.drawingLoop();
-    }
-
-    getImg(img) {
-        const image = new Image();
-        image.src = `./img/${img}`;
-        image.onload = () => { this.CONTEXT.drawImage(image, 0, 0); };
-        return image;
     }
 
     drawBubbleChat(player) {
@@ -78,10 +68,21 @@ export default class BoardCanvas {
         player.movePlayer(player.targetPos.x, player.targetPos.y);
     }
 
+    showPlayerName(player) {
+        this.CONTEXT.font = "bold 17px monospace";
+        this.CONTEXT.fillStyle = "rgba(255, 255, 255, 0.9)";
+        this.CONTEXT.shadowColor = "black";
+        this.CONTEXT.shadowOffsetX = 1;
+        this.CONTEXT.shadowOffsetY = 1;
+        this.CONTEXT.textAlign = "center";
+        this.CONTEXT.fillText(player.userName, player.x + 25, player.y + 90);
+    }
+
     drawingLoop() {
         this.CONTEXT.clearRect(0, 0, this.CANVAS.width, this.CANVAS.height);
-        this.CONTEXT.drawImage(this.getImg(this.THEME + '.jpg'), 0, 0);
+        this.CONTEXT.drawImage(this.IMGS[this.THEME + 10], 0, 0);
         for (const player of this.PLAYERS) {
+            this.showPlayerName(player);
             this.validateNMovePlayer(player);
             this.drawBubbleChat(player);
             player.render();

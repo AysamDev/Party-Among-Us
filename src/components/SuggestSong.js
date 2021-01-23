@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme) => ({
     modal: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     paper: {
         backgroundColor: theme.palette.background.paper,
@@ -14,25 +14,25 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(4, 4, 4),
         display: 'grid',
-        gridGap: theme.spacing(2),
-    },
+        gridGap: theme.spacing(2)
+    }
 }));
 
 function SuggestSong(props) {
-    const [open, setOpen] = useState(true)
-    const classes = useStyles();
+    const [open, setOpen] = useState(true),
+    classes = useStyles();
 
     const clickEvent = async (event) => {
-        const {id, innerHTML} = event.target
-        await props.UserStore.getRoom()
-        const ifPreviouslyAdded = props.UserStore.room.queue.find(q => q.id === id)
-        ifPreviouslyAdded ? await props.UserStore.addLike(id) : await props.UserStore.suggestSong(id, innerHTML)
-        handleClose()
+        const {id, innerHTML} = event.target;
+        await props.UserStore.getRoom();
+        const ifPreviouslyAdded = props.UserStore.room.queue.find(q => q.id === id);
+        ifPreviouslyAdded ? await props.UserStore.addLike(id) : await props.UserStore.suggestSong(id, innerHTML);
+        handleClose();
     }
 
     const handleClose = () => {
-        setOpen(false)
-        props.openSuggest(false)
+        setOpen(false);
+        props.openSuggest(false);
     }
 
     return (
@@ -59,4 +59,4 @@ function SuggestSong(props) {
     )
 }
 
-export default inject("UserStore")(observer(SuggestSong))
+export default inject("UserStore")(observer(SuggestSong));

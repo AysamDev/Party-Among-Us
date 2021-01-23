@@ -1,25 +1,26 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import { observer, inject } from 'mobx-react';
 import { useHistory , useLocation } from "react-router-dom";
 import {Button} from '@material-ui/core';
 import CreateRoom from './CreateRoom';
 
 function Header(props) {
-    const history = useHistory();
-    const location = useLocation()
-    const [popUp, setPopUp] = useState(false)
+    const history = useHistory(),
+    location = useLocation(),
+    [popUp, setPopUp] = useState(false);
 
     const leave = async () => {
-        const room = location.pathname.split('/')[1]
+        const room = location.pathname.split('/')[1];
+
         if(room === 'room'){
             props.UserStore.LeaveRoom();
-            history.push("/home");
+            history.push("/");
         }
     }
 
     const popForm = () => {
-        const currPop = popUp ? false : true
-        setPopUp(currPop)
+        const currPop = popUp ? false : true;
+        setPopUp(currPop);
     }
 
     return (
@@ -39,4 +40,4 @@ function Header(props) {
     )
 }
 
-export default inject("UserStore")(observer(Header))
+export default inject("UserStore")(observer(Header));

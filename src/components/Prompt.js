@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
     modal: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     paper: {
         backgroundColor: theme.palette.background.paper,
@@ -16,29 +16,30 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(4, 4, 4),
         display: 'grid',
-        gridGap: theme.spacing(2),
-    },
+        gridGap: theme.spacing(2)
+    }
 }));
 
 function Prompt(props) {
-    const classes = useStyles();
-    const history = useHistory()
-    const { enqueueSnackbar } = useSnackbar();
-    const [password, setPassword] = useState("")
+    const classes = useStyles(),
+    history = useHistory(),
+    { enqueueSnackbar } = useSnackbar(),
+    [password, setPassword] = useState("");
     let location = useLocation();
-    
+
     const back = () => {
-        history.push("/home")
+        history.push("/");
     }
 
     const checkPassword = () => {
-        const roomID = location.pathname.split('/')[2]
-        const room = props.UserStore.rooms.find(r => r._id === roomID)
-        if(password === room.roomPassword){
-            props.UserStore.setRoom(room)
-            props.setOpen(true)
-        }else{
-            enqueueSnackbar("The Password is incorrect", { variant: 'warning' })
+        const roomID = location.pathname.split('/')[2];
+        const room = props.UserStore.rooms.find(r => r._id === roomID);
+        if(password === room.roomPassword) {
+            props.UserStore.setRoom(room);
+            props.setOpen(true);
+        }
+        else {
+            enqueueSnackbar("The password is incorrect!", { variant: 'error' });
         }
     }
 
@@ -51,7 +52,7 @@ function Prompt(props) {
             onClose={back}
         >
             <Fade in={true}>
-                <div className={classes.paper} >
+                <div className={classes.paper}>
                     <TextField
                         required label="Please write the Room Password"
                         value={password}
@@ -72,4 +73,4 @@ function Prompt(props) {
     )
 }
 
-export default inject("UserStore")(observer(Prompt))
+export default inject("UserStore")(observer(Prompt));

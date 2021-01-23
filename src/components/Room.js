@@ -5,48 +5,47 @@ import UserForm from './UserForm';
 import {useHistory, useLocation} from "react-router-dom";
 import { observer, inject } from 'mobx-react';
 import {Button} from '@material-ui/core';
-import Alert from './Alert'
-import Prompt from './Prompt'
+import Alert from './Alert';
+import Prompt from './Prompt';
 
 function Room(props) {
-    const [open, setOpen] = useState(null);
-    const location = useLocation();
-    const [alert, setAlert] = useState({value: false, text: ""})
-    const [prompt, setPrompt] = useState(false)
+    const [open, setOpen] = useState(null),
+    location = useLocation(),
+    [alert, setAlert] = useState({value: false, text: ""}),
+    [prompt, setPrompt] = useState(false),
+    checkHost = () => props.UserStore.socket.id === props.UserStore.room.host;
     let history = useHistory();
 
-    useEffect(() => {
-        checkValidity()
-    }, []);
+    useEffect(() => {checkValidity()}, []);
 
     const checkValidity = async () => {
-        const url = location.pathname.split('/')
-        const roomID = url[2]
-        await props.UserStore.getRooms()
-        const room = props.UserStore.rooms.find(r => r._id === roomID)
-        if(url.length > 3 && url[3] === 'host'){
-            setOpen(false)
-            return ;
+        const url = location.pathname.split('/');
+        const roomID = url[2];
+        await props.UserStore.getRooms();
+        const room = props.UserStore.rooms.find(r => r._id === roomID);
+        if (url.length > 3 && url[3] === 'host') {
+            setOpen(false);
+            return;
         }
-        if(room && room.guests.length < room.size){
-            if(room.roomPassword){
-                setPrompt(true)
-            }else{
-                props.UserStore.setRoom(room)
-                setOpen(true)
+
+        if (room && room.guests.length < room.size) {
+            if (room.roomPassword) {
+                setPrompt(true);
             }
-        }else if(!room){
-            setAlert({value: true, text: "The room is not found!" })
-        }else{
-            setAlert({value: true, text: "The room is full!" })
+            else {
+                props.UserStore.setRoom(room);
+                setOpen(true);
+            }
         }
+        else if (!room)
+            setAlert({value: true, text: "The room is not found!"});
+        else
+            setAlert({value: true, text: "The room is full!"});
     }
 
-    const checkHost = () => props.UserStore.socket.id === props.UserStore.room.host
-
     const deleteRoom = async () => {
-        props.UserStore.deleteRoom()
-        history.push("/home")
+        props.UserStore.deleteRoom();
+        history.push("/");
     }
 
     return (
@@ -67,5 +66,4 @@ function Room(props) {
     )
 }
 
-export default inject("UserStore")(observer(Room))
-
+export default inject("UserStore")(observer(Room));

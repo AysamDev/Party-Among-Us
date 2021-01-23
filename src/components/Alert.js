@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import {Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
 import {useHistory} from "react-router-dom";
 
@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme) => ({
     modal: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     paper: {
         backgroundColor: theme.palette.background.paper,
@@ -14,16 +14,16 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(4, 4, 4),
         display: 'grid',
-        gridGap: theme.spacing(2),
-    },
+        gridGap: theme.spacing(2)
+    }
 }));
 
 function Alert(props) {
-    const classes = useStyles();
-    const history = useHistory()
+    const classes = useStyles(),
+    history = useHistory();
 
     const back = () => {
-        history.push("/home")
+        history.push("/");
     }
 
     return (
@@ -46,4 +46,4 @@ function Alert(props) {
     )
 }
 
-export default Alert
+export default Alert;
