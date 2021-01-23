@@ -12,9 +12,9 @@ const io = require('socket.io')(server, {
   }
 });
 
-const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO,
-  ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION,
-  JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED } = require('./src/Constants');
+const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER,
+  ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
+  JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM } = require('./src/Constants');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -43,7 +43,7 @@ mongoose.connect(URI,
 io.on('connection', function (socket) {
   socket.on(JOIN_ROOM, async (data) => {
     await socket.join(data.room);
-    socket.to(data.room).emit(ADD_PLAYER, data.player);
+    data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
     socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
   });
 
@@ -53,8 +53,19 @@ io.on('connection', function (socket) {
 
   socket.on(PAUSE, (data) => {
     socket.to(data.room).emit(PAUSE);
+   });
+
+  socket.on(LEAVE_ROOM, () => {
+    socket.to(current_room).emit(REMOVE_PLAYER, socket.id)
+    current_room = null;
   });
 
+  socket.on('disconnect', async(data) => {
+    if (current_room) {
+      socket.to(current_room).emit(REMOVE_PLAYER, socket.id)
+      await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
+    }
+ 
   socket.on(SYNC_TIME, (data) => {
     socket.to(data.room).emit(SYNC_TIME, data);
   });
@@ -78,4 +89,12 @@ io.on('connection', function (socket) {
   socket.on(SEND_MESSAGE, (data) => {
     socket.to(data.room).emit(RECEIVED_MESSAGE, data);
   });
+
+  socket.on(SUGGEST_SONG, (data) => {
+    socket.to(data.room).emit(NEW_SONG, data);
+  })
+
+  socket.on(VOTE_SONG, (data) => {
+    socket.to(data.room).emit(VOTE_SONG, data);
+  })
 });

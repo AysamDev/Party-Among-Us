@@ -1,8 +1,8 @@
-import { makeObservable, observable, action } from 'mobx';
+import { makeObservable, observable, action, computed} from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
 import {
-    ASK_FOR_VIDEO_INFORMATION, JOIN_ROOM, LEAVE_ROOM
+    ASK_FOR_VIDEO_INFORMATION, JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG
 } from '../Constants';
 
 const socketUrl = "http://localhost:4200";
@@ -77,7 +77,23 @@ export class UserStore {
             LeaveRoom: action,
             addLike: action,
             deleteRoom: action,
+            listenToSocket: action,
+            sortQueue: computed,
         })
+        this.listenToSocket()
+    }
+    
+    listenToSocket(){
+        this.socket.on(NEW_SONG, (data) => {
+            const {id, song} = data
+            this.room.queue.push({id, song, votes: 1})
+        })
+
+        this.socket.on(VOTE_SONG, (data) => {
+            const {songID, value} = data
+            this.room.queue.find(q => q.id === songID).votes += value
+        })
+
     }
 
     async getRooms() {
@@ -90,7 +106,7 @@ export class UserStore {
     }
 
     async setRoom(room) {
-         this.room = room
+        this.room = room
     }
 
     compare(a, b) {
@@ -103,6 +119,20 @@ export class UserStore {
         }
     }
 
+    compareSongs(a, b){
+        if (a.votes > b.votes) {
+            return -1
+        } else if (a.votes < b.votes) {
+            return 1
+        } else {
+            return 0
+        }
+    }
+
+    get sortQueue(){
+        return [...this.room.queue].sort(this.compareSongs)
+    }
+
     getTop10() {
         return [...this.rooms].sort(this.compare)
     }
@@ -111,21 +141,25 @@ export class UserStore {
         try {
             const value = unlike ? -1 : 1
             this.room = (await axios.put(`http://localhost:4200/vote/${this.room._id}/${songID}/${value}`)).data
+            this.socket.emit(VOTE_SONG, { room: this.room._id, songID, value })
         } catch (error) {
             console.log(error)
         }
     }
 
-    async createRoom(roomName, roomPassword, description, tags, theme) {
-        //roomName, guests, roomPassword, host, description, tags, queue, theme, hostPassword, size
+    async createRoom(roomName, roomPassword, description, tags, theme, userName, avatar) {
         try {
-            const guests = []
             const host = this.socket.id
+            this.avatar = this.avatars.find(a => a.name === avatar)
+            this.userName = userName
+            const guests = []
+            guests.push({id: this.socket.id, userName, avatar})
             const hostPassword = this.socket.id
             const room = { roomName, guests, roomPassword, host, description, tags, queue: [], theme, hostPassword, size: 10 }
-            const response = (await axios.post("http://localhost:4200/room", room)).data
-            await this.getRooms()
-            this.room = response
+            this.room = (await axios.post("http://localhost:4200/room", room)).data
+            this.socket.emit(JOIN_ROOM, {
+                room: this.room._id
+            })            
         } catch (error) {
             console.log(error)
         }
@@ -163,8 +197,14 @@ export class UserStore {
 
     async suggestSong(id, song) {
         try {
-            const newVal = { newObj: { id, song, votes: 1 } }
+            const newVal = {id, song, votes: 1}
             this.room = (await axios.put(`http://localhost:4200/add/${this.room._id}/queue`, newVal)).data
+            console.log(this.room)
+            this.socket.emit(SUGGEST_SONG, {
+                room: this.room._id,
+                song: song,
+                id: id
+            })
         } catch (error) {
             console.log(error)
         }
@@ -185,9 +225,8 @@ export class UserStore {
         try {
             this.userName = userName
             this.avatar = this.avatars.find(a => a.name === avatar)
-            this.room.guests.push({ id: this.socket.id, userName, avatar })
-            const body = { field: 'guests', newVal: this.room.guests }
-            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`, body)).data
+            const body = { id: this.socket.id, userName, avatar }
+            this.room = (await axios.put(`http://localhost:4200/add/${this.room._id}/guests`, body)).data
             this.socket.emit(JOIN_ROOM, {
                 room: this.room._id,
                 player: {
