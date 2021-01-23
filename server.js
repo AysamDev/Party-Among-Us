@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const api = require('./server/routes/api');
-const Room = require('./server/models/Room.js');
 const PORT = process.env.PORT || 4200;
 const URI = process.env.MONGODB_URI || 'mongodb://localhost/roomsDB';
 const app = express();
@@ -44,9 +43,9 @@ mongoose.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true, useFind
 io.on('connection', function (socket) {
 	let current_room;
 	socket.on(JOIN_ROOM, async (data) => {
-		current_room = data.room;
 		await socket.join(data.room);
 		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
+		socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
 	});
 
 	socket.on(LEAVE_ROOM, () => {
@@ -55,10 +54,9 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', async(data) => {
-		if (current_room) {
-		socket.to(current_room).emit(REMOVE_PLAYER, socket.id);
-		await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
-		}
+		await socket.join(data.room);
+		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
+		socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
 	});
 
 	socket.on(PLAY, () => {

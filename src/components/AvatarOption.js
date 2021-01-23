@@ -3,7 +3,7 @@ import {Avatar} from '@material-ui/core';
 import { observer, inject } from 'mobx-react';
 
 function AvatarOption(props) {
-    const {avatar, setAvatar, create} = props
+    const {avatar, setAvatar, create} = props;
 
     const isAvatarInRoom = () => {
         return create ? false : props.UserStore.room.guests.find(g => g.avatar === avatar.name);

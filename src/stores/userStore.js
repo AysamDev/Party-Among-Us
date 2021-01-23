@@ -1,7 +1,7 @@
 import { makeObservable, observable, action, computed} from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
-import { ASK_FOR_VIDEO_INFORMATION, JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH } from '../Constants';
+import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH } from '../Constants';
 const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
 
 export class UserStore {
@@ -14,6 +14,10 @@ export class UserStore {
         this.player_y = 487;
         this.userName = "";
         this.avatar = "";
+        this.currVidId = ''
+        this.vidPlayer = null
+        this.currentVidTime = 0
+        this.nextVidId = ''
         this.avatars = [
             {name: "0" , src: "./img/avatar_red.gif"},
             {name: "1", src: "./img/avatar_yellow.gif"},
@@ -56,7 +60,12 @@ export class UserStore {
             room: observable,
             player_x: observable,
             player_y: observable,
+            vidPlayer: observable,
+            currVidId: observable,
+            currentVidTime: observable,
+            nextVidId: observable,
             createRoom: action,
+            removeSong: action,
             getRoom: action,
             getRooms: action,
             setRoom: action,
@@ -127,7 +136,7 @@ export class UserStore {
     async addLike(songID, unlike) {
         try {
             const value = unlike ? -1 : 1;
-            this.room = (await axios.put(`http://localhost:4200/vote/${this.room._id}/${songID}/${value}`)).data;
+            this.room = (await axios.put(`${SERVER_PATH}/vote/${this.room._id}/${songID}/${value}`)).data;
             this.socket.emit(VOTE_SONG, { room: this.room._id, songID, value });
         }
         catch (error) {
@@ -144,7 +153,7 @@ export class UserStore {
             guests.push({id: this.socket.id, userName, avatar});
             const hostPassword = this.socket.id;
             const room = { roomName, guests, roomPassword, host, description, tags, queue: [], theme, hostPassword, size: 10 };
-            this.room = (await axios.post("http://localhost:4200/room", room)).data;
+            this.room = (await axios.post(`${SERVER_PATH}/room`, room)).data;
             this.socket.emit(JOIN_ROOM, { room: this.room._id });
         } catch (error) {
             console.log(error);
@@ -186,7 +195,7 @@ export class UserStore {
     async suggestSong(id, song) {
         try {
             const newVal = {id, song, votes: 1};
-            this.room = (await axios.put(`http://localhost:4200/add/${this.room._id}/queue`, newVal)).data;
+            this.room = (await axios.put(`${SERVER_PATH}/add/${this.room._id}/queue`, newVal)).data;
             this.socket.emit(SUGGEST_SONG, {
                 room: this.room._id,
                 song: song,
@@ -198,12 +207,22 @@ export class UserStore {
         }
     }
 
+    async removeSong(vidId){
+        try {
+            this.room = (await axios.delete(`${SERVER_PATH}/delete/${this.room._id}/${vidId}/queue`)).data;
+            console.log(this.room.queue);
+            this.room.splice(0, 1);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     async addUser(userName, avatar) {
         try {
             this.userName = userName;
             this.avatar = this.avatars.find(a => a.name === avatar);
             const body = { id: this.socket.id, userName, avatar };
-            this.room = (await axios.put(`http://localhost:4200/add/${this.room._id}/guests`, body)).data;
+            this.room = (await axios.put(`${SERVER_PATH}/add/${this.room._id}/guests`, body)).data;
             this.socket.emit(JOIN_ROOM, {
                 room: this.room._id,
                 player: {
@@ -214,11 +233,8 @@ export class UserStore {
                     y: this.player_y,
                     theme: this.room.theme
                 }
-            });
-
-            this.socket.emit(ASK_FOR_VIDEO_INFORMATION);
-        }
-        catch (error) {
+            })
+        } catch (error) {
             console.log(error);
         }
     }

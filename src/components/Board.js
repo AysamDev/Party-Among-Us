@@ -150,10 +150,9 @@ const Board = observer((props) => {
         });
 
         webSocket.current.on(REMOVE_PLAYER, (data) => {
-            const index = playerIndex(data)
-            boardRef.current.PLAYERS.splice(index, 1)
+            const index = playerIndex(data);
+            boardRef.current.PLAYERS.splice(index, 1);
         })
-
     }, []);
 
     return (
