@@ -1,9 +1,9 @@
-import React from 'react'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import './App.css';
 import Home from "./components/Home";
 import Room from "./components/Room";
-import Header from "./components/Header"
+import Header from "./components/Header";
 
 function App() {
 	return (
@@ -18,5 +18,4 @@ function App() {
 	)
 }
 
-export default App
-
+export default App;

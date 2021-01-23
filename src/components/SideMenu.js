@@ -15,13 +15,14 @@ function SideMenu(props) {
 
     const search = async (event) => {
         if (event.key === 'Enter') {
-            const { items } = (await axios.get(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${song}&videoCategoryId=10&type=video&videoDuration=short&key=${process.env.REACT_APP_YOUTUBE}`)).data
-            setItems(items.map(i => ({ title: i.snippet.title, id: i.id.videoId, channel: i.snippet.channelTitle.split(' ')[0] })))
-            setOpenSuggest(true)
-            setSong("")
+            const { items } = (await axios.get(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${song}&videoCategoryId=10&type=video&videoDuration=short&key=${process.env.REACT_APP_YOUTUBE}`)).data;
+            setItems(items.map(i => ({ title: i.snippet.title, id: i.id.videoId, channel: i.snippet.channelTitle.split(' ')[0] })));
+            setOpenSuggest(true);
+            setSong("");
             // console.log(`https://www.youtube.com/watch?v=${i.id.videoId}&ab_channel=${i.snippet.channelTitle.split(' ')[0]}`)
-        } else {
-            items.length && setItems([])
+        }
+        else {
+            items.length && setItems([]);
         }
     }
 
@@ -33,11 +34,11 @@ function SideMenu(props) {
                     <h3>{props.UserStore.userName}</h3>
                 </div>
                 <div id="roomNameDesc">
-                    <h2>{props.UserStore.room.roomName} </h2>
+                    <h2>{props.UserStore.room.roomName}</h2>
                     <p>{props.UserStore.room.description}</p>
                 </div>
             </div>
-            {props.UserStore.room.queue[0] ? (props.UserStore.currVidId = props.UserStore.room.queue[0].id, <Video />) : "Add A Song :)"}
+            {props.UserStore.sortQueue[0] ? (props.UserStore.currVidId = props.UserStore.sortQueue[0].id, <Video />) : "Add A Song :)"}
             <Playlist />
             <TextField
                 required label="Suggest Song"
@@ -52,4 +53,4 @@ function SideMenu(props) {
     )
 }
 
-export default inject("UserStore")(observer(SideMenu))
+export default inject("UserStore")(observer(SideMenu));

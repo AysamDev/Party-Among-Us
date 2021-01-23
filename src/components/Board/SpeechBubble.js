@@ -3,6 +3,7 @@
 
 export default function SpeechBubble(context, playerX, playerY) {
 	this.context = context;
+	this.context.textAlign = "left";
 
     // -- Attributes
     if (playerX < 0) playerX = 15;
@@ -11,7 +12,7 @@ export default function SpeechBubble(context, playerX, playerY) {
 	// Panel
 	this.panelBounds = new SpeechBubble.Bounds(playerX, playerY, 150, 34);
 	this.cornerRadius = 10;
-	this.padding = 3;
+	this.padding = 0;
 	this.panelBorderWidth = 2;
 	this.panelBorderColor = "#333";
 	this.panelFillColor = 'rgba(255, 255, 255, 0.9)';
@@ -124,7 +125,6 @@ SpeechBubble.prototype.draw = function() {
 	this.context.closePath();
 
 	this.drawText(formattedText.lines);
-	// this.drawDebug();
 };
 
 // Takes the entire input text string and:
@@ -150,9 +150,9 @@ SpeechBubble.prototype.formatText = function() {
 	let height = this.cornerRadius * 2 + this.padding * 2 + this.fontSize;
     const ellipsisLength = this.context.measureText("...").width;
 
-	for (var i = 1; i < words.length; i++) {
-		var lineNum = lines.length - 1;
-        var wordLength = this.context.measureText(" " + words[i]).width;
+	for (let i = 1; i < words.length; i++) {
+		const lineNum = lines.length - 1;
+        const wordLength = this.context.measureText(" " + words[i]).width;
 
 		// If the overflow is ellipsis and adding a new word + ellipsis will overflow
 		// and it's the last possible line in the panel, then add ellipsis
@@ -206,8 +206,8 @@ SpeechBubble.prototype.drawText = function(lines) {
 	this.context.fillStyle = this.fontColor;
 	this.context.textBaseline = "hanging";
 
-	var verticalOffset = this.padding + this.cornerRadius;
-	var horizontalOffset = this.panelBounds.left + this.padding + this.cornerRadius;
+	let verticalOffset = this.padding + this.cornerRadius;
+	let horizontalOffset = this.panelBounds.left + this.padding + this.cornerRadius;
 
 	for (let i = 0; i < lines.length; i++) {
 		if (this.textAlign === SpeechBubble.ALIGN_RIGHT)
@@ -236,7 +236,7 @@ SpeechBubble.prototype.drawTail = function(panelSide, start, end) {
 
 	if (this.tailStyle === SpeechBubble.TAIL_STRAIGHT) {
 		this.context.lineTo(start.x, start.y);
-		this.context.lineTo(this.target.x+20, this.target.y+20);
+		this.context.lineTo(this.target.x+10, this.target.y+10);
 		this.context.lineTo(end.x, end.y);
 	}
 	else if (this.tailStyle === SpeechBubble.TAIL_CURVED) {
@@ -296,27 +296,6 @@ SpeechBubble.prototype.getTailLocation = function() {
 	location.side = side;
 
 	return location;
-};
-
-SpeechBubble.prototype.drawDebug = function() {
-	this.context.strokeStyle = "#00F";
-	this.context.strokeRect(this.getSafeSpace().left, this.getSafeSpace().top, this.getSafeSpace().width, this.getSafeSpace().height);
-
-	this.context.strokeStyle = "#F00";
-	this.context.beginPath();
-	this.context.moveTo(this.panelBounds.getCenter().x, this.panelBounds.getCenter().y);
-	this.context.lineTo(this.getTailLocation().x, this.getTailLocation().y);
-	this.context.stroke();
-	this.context.closePath();
-
-	this.context.fillStyle = "#0F0";
-	this.debugSquare(this.target);
-	this.debugSquare(this.panelBounds.getCenter());
-	this.debugSquare(this.getTailLocation());
-};
-
-SpeechBubble.prototype.debugSquare = function(point) {
-	this.context.fillRect(point.x - 2, point.y - 2, 5, 5);
 };
 
 SpeechBubble.BezierCurve = function(context, resolution) {
