@@ -9,7 +9,7 @@ import InputEmoji from "react-input-emoji";
 import { observer, inject } from 'mobx-react';
 import Alert from './Alert';
 import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE, REMOVE_PLAYER, NEW_PLAYER_HOST } from '../Constants';
-
+import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     selectTheme: {
@@ -29,8 +29,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Board = observer((props) => {
-
-
+    const SOUNDS = {
+        "disconnect": new Audio('./sounds/disconnect.wav'),
+        "vote": new Audio('./sounds/vote.wav')
+    };
     const canvasRef = useRef(null),
     messageRef = useRef(null),
     boardRef = useRef(null),
@@ -41,6 +43,7 @@ const Board = observer((props) => {
     [alert, setAlert] = useState({value: false, text: ""}),
     CONNECTION_ERROR = "Connection Error!";
     let { room, userName, avatar} = props.UserStore;
+    const { enqueueSnackbar } = useSnackbar()
 
     const playerIndex = (socket_id) => {
         const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id);
@@ -158,6 +161,7 @@ const Board = observer((props) => {
         boardRef.current.start();
 
         webSocket.current.on(ADD_PLAYER, (data) => {
+            enqueueSnackbar(`${data.userName} has joined`, { variant: 'success' });
             boardRef.current.newPlayer({
                 playerId: data.playerId,
                 userName: data.userName,
@@ -183,8 +187,11 @@ const Board = observer((props) => {
 
         webSocket.current.on(REMOVE_PLAYER, (data) => {
             const index = playerIndex(data);
+            const userName = boardRef.current.PLAYERS[index].userName
+            SOUNDS.disconnect.play();
             boardRef.current.PLAYERS.splice(index, 1);
-        })
+            enqueueSnackbar(`${userName} has Left The Room`, { variant: 'warning' });
+        });
     }, []);
 
     return (
