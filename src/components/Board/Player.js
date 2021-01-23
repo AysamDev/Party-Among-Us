@@ -5,9 +5,10 @@ export default class Player extends Sprite {
     static DIRECTION = { RIGHT: 0, LEFT: 2 };
     static PLAYER_SIZE = {width: 85, height: 85};
     static SOUNDS = {
-        "message": new Audio('./sounds/message.mp3'),
-        "spawn": new Audio('./sounds/spawn.mp3'),
-        "vote": new Audio('./sounds/vote.mp3')
+        "message": new Audio('./sounds/message.wav'),
+        "spawn": new Audio('./sounds/spawn.wav'),
+        "disconnect": new Audio('./sounds/disconnect.wav'),
+        "vote": new Audio('./sounds/vote.wav')
     };
 
     constructor(playerProps, context, image) {

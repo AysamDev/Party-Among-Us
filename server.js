@@ -28,7 +28,7 @@ app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
 	next();
-})
+});
 
 app.use(API_PATH, api);
 
@@ -44,6 +44,7 @@ io.on('connection', function (socket) {
 	let current_room;
 	socket.on(JOIN_ROOM, async (data) => {
 		await socket.join(data.room);
+		current_room = data.room;
 		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
 		socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
 	});

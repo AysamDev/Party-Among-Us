@@ -70,7 +70,10 @@ export default class BoardCanvas {
 
     showPlayerName(player) {
         this.CONTEXT.font = "bold 17px monospace";
-        this.CONTEXT.fillStyle = "rgba(51, 51, 255, 0.9)";
+        this.CONTEXT.fillStyle = "rgba(255, 255, 255, 0.9)";
+        this.CONTEXT.shadowColor = "black";
+        this.CONTEXT.shadowOffsetX = 1;
+        this.CONTEXT.shadowOffsetY = 1;
         this.CONTEXT.textAlign = "center";
         this.CONTEXT.fillText(player.userName, player.x + 25, player.y + 90);
     }

@@ -26,6 +26,7 @@ router.get('/room', async function (req, res) {
 
 router.post('/room', async function (req, res) {
     try {
+        console.log('this is room route');
         const room = new Room({ ...req.body });
         await room.save();
         res.send(room);

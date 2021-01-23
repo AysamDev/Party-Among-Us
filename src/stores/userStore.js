@@ -6,7 +6,7 @@ const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
 
 export class UserStore {
     constructor() {
-        this.socket = io(SERVER_PATH);
+        this.socket = io(SERVER_URL);
         this.getRooms();
         this.room = {};
         this.rooms = [];
@@ -14,10 +14,10 @@ export class UserStore {
         this.player_y = 487;
         this.userName = "";
         this.avatar = "";
-        this.currVidId = ''
-        this.vidPlayer = null
-        this.currentVidTime = 0
-        this.nextVidId = ''
+        this.currVidId = '';
+        this.vidPlayer = null;
+        this.currentVidTime = 0;
+        this.nextVidId = '';
         this.avatars = [
             {name: "0" , src: "./img/avatar_red.gif"},
             {name: "1", src: "./img/avatar_yellow.gif"},
@@ -136,7 +136,7 @@ export class UserStore {
     async addLike(songID, unlike) {
         try {
             const value = unlike ? -1 : 1;
-            this.room = (await axios.put(`${SERVER_PATH}/vote/${this.room._id}/${songID}/${value}`)).data;
+            this.room = (await axios.put(`${SERVER_URL}/vote/${this.room._id}/${songID}/${value}`)).data;
             this.socket.emit(VOTE_SONG, { room: this.room._id, songID, value });
         }
         catch (error) {
@@ -153,7 +153,7 @@ export class UserStore {
             guests.push({id: this.socket.id, userName, avatar});
             const hostPassword = this.socket.id;
             const room = { roomName, guests, roomPassword, host, description, tags, queue: [], theme, hostPassword, size: 10 };
-            this.room = (await axios.post(`${SERVER_PATH}/room`, room)).data;
+            this.room = (await axios.post(`${SERVER_URL}/room`, room)).data;
             this.socket.emit(JOIN_ROOM, { room: this.room._id });
         } catch (error) {
             console.log(error);
@@ -195,7 +195,7 @@ export class UserStore {
     async suggestSong(id, song) {
         try {
             const newVal = {id, song, votes: 1};
-            this.room = (await axios.put(`${SERVER_PATH}/add/${this.room._id}/queue`, newVal)).data;
+            this.room = (await axios.put(`${SERVER_URL}/add/${this.room._id}/queue`, newVal)).data;
             this.socket.emit(SUGGEST_SONG, {
                 room: this.room._id,
                 song: song,
@@ -209,8 +209,7 @@ export class UserStore {
 
     async removeSong(vidId){
         try {
-            this.room = (await axios.delete(`${SERVER_PATH}/delete/${this.room._id}/${vidId}/queue`)).data;
-            console.log(this.room.queue);
+            this.room = (await axios.delete(`${SERVER_URL}/delete/${this.room._id}/${vidId}/queue`)).data;
             this.room.splice(0, 1);
         } catch (error) {
             console.log(error);
@@ -222,7 +221,7 @@ export class UserStore {
             this.userName = userName;
             this.avatar = this.avatars.find(a => a.name === avatar);
             const body = { id: this.socket.id, userName, avatar };
-            this.room = (await axios.put(`${SERVER_PATH}/add/${this.room._id}/guests`, body)).data;
+            this.room = (await axios.put(`${SERVER_URL}/add/${this.room._id}/guests`, body)).data;
             this.socket.emit(JOIN_ROOM, {
                 room: this.room._id,
                 player: {

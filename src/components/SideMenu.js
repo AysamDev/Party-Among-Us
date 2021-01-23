@@ -19,9 +19,11 @@ function SideMenu(props) {
             setItems(items.map(i => ({ title: i.snippet.title, id: i.id.videoId, channel: i.snippet.channelTitle.split(' ')[0] })));
             setOpenSuggest(true);
             setSong("");
+            // console.log(`https://www.youtube.com/watch?v=${i.id.videoId}&ab_channel=${i.snippet.channelTitle.split(' ')[0]}`)
         }
-        else
+        else {
             items.length && setItems([]);
+        }
     }
 
     return (
@@ -32,11 +34,11 @@ function SideMenu(props) {
                     <h3>{props.UserStore.userName}</h3>
                 </div>
                 <div id="roomNameDesc">
-                    <h2>{props.UserStore.room.roomName} </h2>
+                    <h2>{props.UserStore.room.roomName}</h2>
                     <p>{props.UserStore.room.description}</p>
                 </div>
             </div>
-            {props.UserStore.room.queue[0] ? (props.UserStore.currVidId = props.UserStore.room.queue[0].id, <Video />) : "Add A Song"}
+            {props.UserStore.sortQueue[0] ? (props.UserStore.currVidId = props.UserStore.sortQueue[0].id, <Video />) : "Add A Song :)"}
             <Playlist />
             <TextField
                 required label="Suggest Song"

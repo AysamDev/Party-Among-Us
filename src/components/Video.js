@@ -5,7 +5,7 @@ import { observer, inject } from 'mobx-react';
 
 const Video = observer((props) => {
 	const webSocket = useRef(props.UserStore.socket)
-	let { room, currVidId, vidPlayer, currentVidTime, removeSong, nextVidId } = props.UserStore;
+	let { room, currVidId, vidPlayer, currentVidTime, removeSong, nextVidId, sortQueue } = props.UserStore;
 
 	const opts = {
 		height: '220',
@@ -73,16 +73,16 @@ const Video = observer((props) => {
 				webSocket.current.emit(PLAY, { room: room._id });
 				break;
 			case 0:
-				if (room.queue[1]) {
-					nextVidId = room.queue[1].id
+				if (sortQueue[1]) {
+					nextVidId = sortQueue[1].id
 					webSocket.current.emit(NEW_VIDEO, { vidId: nextVidId, room: room._id });
-					console.log(room.queue)
+					console.log(sortQueue)
 					removeSong(currVidId)
 					console.log('song removed???????????')
-					console.log(room.queue)
+					console.log(sortQueue)
 					currVidId = nextVidId
 				} else {
-					room.queue[0] = false
+					sortQueue[0] = false
 				}
 				break;
 			case 1:

@@ -53,7 +53,6 @@ function CreateRoom(props) {
         if (!roomName || !theme || !userName || !avatar ) {
             enqueueSnackbar('Missing Fields', { variant: 'error' });
         } else {
-            console.log(avatar)
             await props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme, userName, avatar);
             history.push(`/room/${props.UserStore.room._id}/host`);
             handleClose();
@@ -88,7 +87,6 @@ function CreateRoom(props) {
                             id="roomPassword"
                             label="Password"
                             placeholder="Password (optional)"
-                            label="Password (for Private Room)"
                             type="password"
                             variant="outlined"
                             value={roomPassword}
