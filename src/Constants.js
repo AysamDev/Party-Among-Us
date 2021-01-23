@@ -18,5 +18,6 @@ module.exports = {
   NEW_SONG: 'NEW_SONG',
   VOTE_SONG: 'VOTE_SONG',
   REMOVE_PLAYER: 'REMOVE_PLAYER',
-  SERVER_PATH: 'http://localhost:4200'
+  NEW_PLAYER_HOST: 'NEW_PLAYER_HOST',
+  SERVER_PATH: 'http://localhost:4200',
 }

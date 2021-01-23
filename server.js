@@ -14,9 +14,10 @@ const io = require('socket.io')(server, {
 	pingTimeout: 5000
 });
 
-const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER,
-	ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
-	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM, API_PATH } = require('./src/Constants');
+const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH
+  ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
+  JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM } = require('./src/Constants');
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -41,6 +42,7 @@ mongoose.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true, useFind
 	});
 
 io.on('connection', function (socket) {
+
 	let current_room;
 	socket.on(JOIN_ROOM, async (data) => {
 		await socket.join(data.room);
@@ -55,9 +57,10 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', async(data) => {
-		await socket.join(data.room);
-		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
-		socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
+     if (current_room) {
+      socket.to(current_room).emit(REMOVE_PLAYER, socket.id)
+      await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
+    }
 	});
 
 	socket.on(PLAY, () => {
@@ -99,4 +102,9 @@ io.on('connection', function (socket) {
 	socket.on(VOTE_SONG, (data) => {
 		socket.to(data.room).emit(VOTE_SONG, data);
 	})
+  
+   socket.on(NEW_PLAYER_HOST, (data) => { 
+    io.to(data.socket).emit(NEW_PLAYER_HOST, data.players)
+  })
+
 });

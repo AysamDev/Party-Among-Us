@@ -30,9 +30,10 @@ export default class BoardCanvas {
         }
     }
 
-    newPlayer(playerProps) {
+
+    newPlayer(playerProps, pos) {
         const player = new Player(playerProps, this.CONTEXT, this.IMGS[playerProps.avatar]);
-        player.targetPos = BoardCanvas.DEFAULT_PLAYER_POS;
+        player.targetPos = pos || BoardCanvas.DEFAULT_PLAYER_POS;
         this.PLAYERS.push(player);
     }
 
