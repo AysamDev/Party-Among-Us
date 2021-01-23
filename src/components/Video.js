@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useRef } from 'react';
 import YouTube from 'react-youtube';
 import {
   PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, ASK_FOR_VIDEO_INFORMATION,
@@ -6,98 +6,104 @@ import {
 } from '../Constants';
 import { observer, inject } from 'mobx-react'
 
-const opts = {
-  height: '390',
-  width: '640',
-  playerVars: {
-    controls: 2, //change to zero if we decide to remove control
-  }
-}
+const Video = observer((props) => {
 
-class Video extends Component {
+  const webSocket = useRef(props.UserStore.socket)
+  let { room, currVidId, vidPlayer, currentVidTime, removeSong, nextVidId } = props.UserStore
 
-  state = {
-    socket: null,
-    player: null,
-    room: '',
-    currentVidId: 'ql0PwD56JFY',
-    nextVidId: 'Je-Tori3psE'
-  }
+  //console.log(room.queue)
 
-  onSocketMethods = (socket) => {
-
-    socket.on(PLAY, () => {
-      this.state.player.playVideo();
-    });
-
-    socket.on(PAUSE, () => {
-      this.state.player.pauseVideo();
-    });
-
-    socket.on(SYNC_TIME, (currentTime) => {
-      this.syncTime(currentTime);
-    })
-
-    socket.on(NEW_VIDEO, () => {
-      this.state.player.loadVideoById({
-        videoId: this.state.nextVidId
-      });
-      this.setState({
-        nextVidId: '7pOEdPQ5n4w' //should be id of next song from state
-      });
-    });
-
-    socket.on(ASK_FOR_VIDEO_INFORMATION, () => {
-      const data = {
-        url: this.state.player.getVideoUrl(),
-        currentTime: this.state.player.getCurrentTime()
-      }
-      socket.emit(SYNC_VIDEO_INFORMATION, data);
-    });
-
-    socket.on(SYNC_VIDEO_INFORMATION, (data) => {
-      const videoId = this.state.currentVidId
-      this.state.player.loadVideoById({
-        videoId: videoId,
-        startSeconds: data.currentTime
-      });
-    });
-  }
-
-  syncTime = (currentTime) => {
-    if (this.state.player.getCurrentTime() < currentTime - 0.5 || this.state.player.getCurrentTime() > currentTime + 0.5) {
-      this.state.player.seekTo(currentTime);
-      this.state.player.playVideo();
+  const opts = {
+    height: '220',
+    width: '440',
+    playerVars: {
+      controls: 2, //change to zero if we decide to remove control
+      autoplay: 1,
+      start: currentVidTime
     }
   }
 
-  onReady = (e) => {
-    this.setState({
-      player: e.target
-    });
-
-    const socket = this.props.UserStore.socket
-    this.setState({ socket });
-    this.onSocketMethods(socket);
+  const onReady = (e) => {
+    vidPlayer = e.target
+    onSocketMethods();
   }
 
-  onStateChanged = (e) => {
-    switch (this.state.player.getPlayerState()) {
+  const onSocketMethods = () => {
+
+    webSocket.current.on(PLAY, () => {
+      vidPlayer.playVideo();
+    });
+
+    webSocket.current.on(PAUSE, () => {
+      vidPlayer.pauseVideo();
+    });
+
+    webSocket.current.on(SYNC_TIME, (data) => {
+      syncTime(data.currentTime);
+    })
+
+    webSocket.current.on(NEW_VIDEO, (data) => {
+      vidPlayer.loadVideoById({
+        videoId: data.vidId
+      });
+    });
+
+    webSocket.current.on(ASK_FOR_VIDEO_INFORMATION, () => {
+      const data = {
+        vidId: currVidId,
+        currentTime: vidPlayer.getCurrentTime(),
+        room: room._id
+      }
+      webSocket.current.emit(SYNC_VIDEO_INFORMATION, data);
+    });
+
+    webSocket.current.on(SYNC_VIDEO_INFORMATION, (data) => {
+      vidPlayer.loadVideoById({
+        videoId: data.vidId,
+        startSeconds: data.currentTime,
+        room: room._id
+      });
+    });
+
+  }
+
+  const syncTime = (currentTime) => {
+    if (vidPlayer.getCurrentTime() < currentTime - 0.5 || vidPlayer.getCurrentTime() > currentTime + 0.5) {
+      vidPlayer.seekTo(currentTime);
+      vidPlayer.playVideo();
+      console.log(currentTime)
+    }
+  }
+
+
+  const onStateChanged = (e) => {
+
+    switch (vidPlayer.getPlayerState()) {
       case -1:
-        this.state.socket.emit(PLAY);
+        webSocket.current.emit(PLAY, { room: room._id });
         break;
-      case 0: //song endded - play next in Q
-        this.state.socket.emit(NEW_VIDEO, this.state.nextVidId);
+      case 0:
+        if (room.queue[1]) {
+          nextVidId = room.queue[1].id
+          webSocket.current.emit(NEW_VIDEO, { vidId: nextVidId, room: room._id });
+          console.log(room.queue)
+          removeSong(currVidId)
+          console.log('song removed???????????')
+          console.log(room.queue)
+          currVidId = nextVidId
+        } else {
+          room.queue[0] = false
+        }
         break;
       case 1:
-        this.state.socket.emit(SYNC_TIME, this.state.player.getCurrentTime());
-        this.state.socket.emit(PLAY);
+        webSocket.current.emit(SYNC_TIME, { currentTime: vidPlayer.getCurrentTime(), room: room._id });
+        webSocket.current.emit(PLAY, { room: room._id });
         break;
       case 2:
-        this.state.socket.emit(PAUSE);
+        webSocket.current.emit(PAUSE, { room: room._id });
         break;
       case 3:
-        this.state.socket.emit(SYNC_TIME, this.state.player.getCurrentTime());
+        webSocket.current.emit(SYNC_TIME, { currentTime: vidPlayer.getCurrentTime(), room: room._id });
         break;
       case 5:
         break;
@@ -106,21 +112,19 @@ class Video extends Component {
     }
   }
 
-  render() {
-    return (
-      <div>
-        <div className="responsive-video">
-          <YouTube
-            videoId={this.state.currentVidId}
-            opts={opts}
-            onReady={this.onReady}
-            onStateChange={this.onStateChanged}
-            autoPlay
-          />
-        </div>
+  return (
+    <div>
+      <div className="responsive-video">
+        <YouTube
+          videoId={currVidId}
+          opts={opts}
+          onReady={onReady}
+          onStateChange={onStateChanged}
+          autoPlay
+        />
       </div>
-    )
-  }
-}
+    </div>
+  );
+});
 
-export default inject("UserStore")(observer(Video))
+export default inject("UserStore")(Video);

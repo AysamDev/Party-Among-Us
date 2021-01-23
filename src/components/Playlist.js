@@ -5,7 +5,7 @@ import Song from './Song';
 function Playlist(props) {
     return (
         <div>
-            {props.UserStore.room.queue.map(q => <Song song={q} key={q.id}/>)}
+            {props.UserStore.room.queue.map((q, i) => <Song song={q} key={i}/>)}
         </div>
     )
 }
