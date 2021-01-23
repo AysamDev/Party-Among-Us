@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     modal: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     paper: {
         backgroundColor: theme.palette.background.paper,
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(1, 4, 4),
         display: 'grid',
-        gridGap: theme.spacing(2),
+        gridGap: theme.spacing(2)
     },
     grid: {
         textAlign: 'center'
@@ -28,19 +28,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function UserForm(props) {
-    const classes = useStyles();
-    const [userName, setUserName] = useState("")
-    const [avatar, setAvatar] = useState("")
-    const { enqueueSnackbar } = useSnackbar();
-
-    // const avatarOptions = props.UserStore.avatars.map((a, i )=> ({label: a.name, value: i}))
+    const classes = useStyles(),
+    [userName, setUserName] = useState(""),
+    [avatar, setAvatar] = useState(""),
+    { enqueueSnackbar } = useSnackbar();
 
     const openRoom = () => {
-        if (!userName || !avatar) {
-            enqueueSnackbar('Missing Fields', { variant: 'error' })
-        } else {
-            props.UserStore.addUser(userName, avatar)
-            props.open(false)
+        if (!userName || !avatar)
+            enqueueSnackbar('Missing Fields', {variant: 'error'});
+        else {
+            props.UserStore.addUser(userName, avatar);
+            props.open(false);
         }
     }
 
@@ -85,4 +83,4 @@ function UserForm(props) {
     )
 }
 
-export default inject("UserStore")(observer(UserForm))
+export default inject("UserStore")(observer(UserForm));

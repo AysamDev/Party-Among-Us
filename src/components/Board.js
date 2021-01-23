@@ -2,19 +2,19 @@ import React, { useRef, useEffect, useState } from 'react';
 import BoardCanvas from './Board/BoardCanvas';
 import { Button } from '@material-ui/core';
 import FormControl from '@material-ui/core/FormControl';
-import NativeSelect from '@material-ui/core/NativeSelect';
+import Select from 'react-select';
 import InputLabel from '@material-ui/core/InputLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import InputEmoji from "react-input-emoji";
-import { observer, inject } from 'mobx-react'
+import { observer, inject } from 'mobx-react';
+import Alert from './Alert';
 import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE } from '../Constants';
 
 
 const useStyles = makeStyles((theme) => ({
     selectTheme: {
         margin: theme.spacing(2),
-        minWidth: 130,
-        fontSize: 25
+        minWidth: 150
     },
     chat: {
         margin: theme.spacing(0.2),
@@ -30,44 +30,57 @@ const useStyles = makeStyles((theme) => ({
 
 const Board = observer((props) => {
 
-    const webSocket = useRef(props.UserStore.socket)
-
-    let { room } = props.UserStore
+    const canvasRef = useRef(null),
+    messageRef = useRef(null),
+    boardRef = useRef(null),
+    [theme, setTheme] = useState(props.UserStore.room.theme),
+    classes = useStyles(),
+    webSocket = useRef(props.UserStore.socket),
+    themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value })),
+    [alert, setAlert] = useState({value: false, text: ""}),
+    CONNECTION_ERROR = "Connection Error!";
+    let { room } = props.UserStore;
 
     const playerIndex = (socket_id) => {
-        const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id)
-        return index
+        const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id);
+        return index;
     }
 
-    const canvasRef = useRef(null),
-        messageRef = useRef(null),
-        boardRef = useRef(null),
-        [theme, setTheme] = useState(props.UserStore.room.theme),
-        classes = useStyles();
-
     const doDance = () => {
-        boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].sendMessage('/dance');
-        webSocket.current.emit(SEND_MESSAGE, {
-            id: webSocket.current.id,
-            message: '/dance',
-            room: room._id
-        })
+        if (playerIndex(webSocket.current.id) !== -1) {
+            boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].sendMessage('/dance');
+            webSocket.current.emit(SEND_MESSAGE, {
+                id: webSocket.current.id,
+                message: '/dance',
+                room: room._id
+            });
+        }
+        else {
+            //todo remove player from room
+            setAlert({value: true, text: CONNECTION_ERROR});
+        }
     }
 
     const onSelectTheme = (e) => {
-        const theTheme = e.target.value;
+        const theTheme = e.value;
         boardRef.current.changeTheme(theTheme);
         setTheme(theTheme);
     }
 
     const sendMessage = () => {
         const message = messageRef.current;
-        boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].sendMessage(message.value);
-        webSocket.current.emit(SEND_MESSAGE, {
-            id: webSocket.current.id,
-            message: message.value,
-            room: room._id
-        })
+        if (playerIndex(webSocket.current.id) !== -1) {
+            boardRef.current.PLAYERS[playerIndex(webSocket.current.id)].sendMessage(message.value);
+            webSocket.current.emit(SEND_MESSAGE, {
+                id: webSocket.current.id,
+                message: message.value,
+                room: room._id
+            });
+        }
+        else {
+            //todo remove player from room
+            setAlert({value: true, text: CONNECTION_ERROR});
+        }
     }
 
     const onCanvasClick = (e) => {
@@ -76,35 +89,40 @@ const Board = observer((props) => {
         let y = Math.floor(e.clientY - rect.top);
 
         const playerId = webSocket.current.id;
-        if (x + boardRef.current.PLAYERS[playerIndex(playerId)].width > canvasRef.current.width)
-            x = x - boardRef.current.PLAYERS[playerIndex(playerId)].width;
 
-        if (y + boardRef.current.PLAYERS[playerIndex(playerId)].height > canvasRef.current.height)
-            y = y - boardRef.current.PLAYERS[playerIndex(playerId)].height;
+        if (playerIndex(playerId) !== -1) {
+            if (x + boardRef.current.PLAYERS[playerIndex(playerId)].width > canvasRef.current.width)
+                x = x - boardRef.current.PLAYERS[playerIndex(playerId)].width;
 
-        webSocket.current.emit(MOVE_PLAYER, {
-            id: webSocket.current.id,
-            x: x,
-            y: y,
-            room: room._id
-        })
+            if (y + boardRef.current.PLAYERS[playerIndex(playerId)].height > canvasRef.current.height)
+                y = y - boardRef.current.PLAYERS[playerIndex(playerId)].height;
 
-        boardRef.current.PLAYERS[playerIndex(playerId)].targetPos = { x, y };
+            webSocket.current.emit(MOVE_PLAYER, {
+                id: webSocket.current.id,
+                x: x,
+                y: y,
+                room: room._id
+            });
+
+            boardRef.current.PLAYERS[playerIndex(playerId)].targetPos = { x, y };
+        }
+        else {
+            //todo remove player from room
+            setAlert({value: true, text: CONNECTION_ERROR});
+        }
     }
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
+        const context = canvas.getContext("2d");
         boardRef.current = new BoardCanvas(canvas, context, theme);
 
         room.guests.forEach(g => boardRef.current.newPlayer({
             playerId: g.id,
             userName: g.userName,
             avatar: g.avatar,
-            x: 350,
-            y: 350,
-            width: 85,
-            height: 85,
+            x: props.UserStore.player_x,
+            y: props.UserStore.player_y,
             theme: room.theme
         }));
 
@@ -117,8 +135,6 @@ const Board = observer((props) => {
                 avatar: data.avatar,
                 x: data.x,
                 y: data.y,
-                height: 85,
-                width: 85,
                 theme: data.theme
             });
         });
@@ -129,12 +145,10 @@ const Board = observer((props) => {
         });
 
         webSocket.current.on(RECEIVED_MESSAGE, (data) => {
-            const { message, id } = data
+            const { message, id } = data;
             boardRef.current.PLAYERS[playerIndex(id)].sendMessage(message);
         });
     }, []);
-
-
 
     return (
         <div id="board">
@@ -147,26 +161,11 @@ const Board = observer((props) => {
             <br />
             <FormControl className={classes.selectTheme}>
                 <InputLabel color="secondary">Select a theme:</InputLabel>
-                <NativeSelect value={theme} onChange={onSelectTheme} name="select_theme" color="secondary">
-                    <option value="theme1">Icy</option>
-                    <option value="theme2">Sky</option>
-                    <option value="theme3">Thunder</option>
-                    <option value="theme4">Halloween1</option>
-                    <option value="theme5">Halloween2</option>
-                    <option value="theme6">WildZone</option>
-                    <option value="theme7">Medieval</option>
-                    <option value="theme8">Disco</option>
-                    <option value="theme9">DiscoStar</option>
-                    <option value="theme10">PlantWorld</option>
-                    <option value="theme11">DJ.Penguin</option>
-                    <option value="theme12">Splash</option>
-                    <option value="theme13">Astro</option>
-                    <option value="theme14">Snowy</option>
-                </NativeSelect>
+                <Select options={themeOptions} placeholder="Select a theme:" onChange={onSelectTheme} name="select_theme" color="secondary" />
             </FormControl>
+            {alert.value && <Alert text={alert.text} />}
         </div>
     )
 })
 
-export default inject("UserStore")(Board)
-
+export default inject("UserStore")(Board);

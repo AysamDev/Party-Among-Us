@@ -13,5 +13,6 @@ module.exports = {
   MOVE_PLAYER: 'MOVE_PLAYER',
   RECEIVED_MESSAGE: 'RECEIVED_MESSAGE',
   LEAVE_ROOM: 'LEAVE_ROOM',
-  API_PATH: '/api'
+  API_PATH: '/api',
+  SERVER_PATH: 'http://localhost:4200'
 }

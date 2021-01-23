@@ -1,56 +1,53 @@
 import { makeObservable, observable, action } from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
-import {
-    ASK_FOR_VIDEO_INFORMATION, JOIN_ROOM, LEAVE_ROOM
-} from '../Constants';
-
-const socketUrl = "http://localhost:4200";
+import { ASK_FOR_VIDEO_INFORMATION, JOIN_ROOM, LEAVE_ROOM, API_PATH, SERVER_PATH } from '../Constants';
+const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
 
 export class UserStore {
     constructor() {
-        this.socket = io(socketUrl)
-        this.getRooms()
-        this.room = {}
-        this.rooms = []
-        this.player_x = 350
-        this.player_y = 350
-        this.userName = ""
-        this.avatar = ""
+        this.socket = io(SERVER_PATH);
+        this.getRooms();
+        this.room = {};
+        this.rooms = [];
+        this.player_x = 815;
+        this.player_y = 487;
+        this.userName = "";
+        this.avatar = "";
         this.avatars = [
-            {name: "spritePlayer0" , src: "./img/avatar_red.png"},
-            {name: "spritePlayer1", src: "./img/avatar_yellow.png"},
-            {name: "spritePlayer2" , src: "./img/avatar_orange.png"},
-            {name: "spritePlayer3", src: "./img/avatar_white.png"},
-            {name: "spritePlayer4", src: "./img/avatar_lime.png"},
-            {name: "spritePlayer5" , src: "./img/avatar_pink.png"},
-            {name: "spritePlayer6", src: "./img/avatar_cyan.png"},
-            {name: "spritePlayer7", src: "./img/avatar_black.png"},
-            {name: "spritePlayer8", src: "./img/avatar_purple.png"},
-            {name: "spritePlayer9", src: "./img/avatar_blue.png"}
-        ]
+            {name: "0" , src: "./img/avatar_red.gif"},
+            {name: "1", src: "./img/avatar_yellow.gif"},
+            {name: "2" , src: "./img/avatar_orange.gif"},
+            {name: "3", src: "./img/avatar_white.gif"},
+            {name: "4", src: "./img/avatar_lime.gif"},
+            {name: "5" , src: "./img/avatar_pink.gif"},
+            {name: "6", src: "./img/avatar_cyan.gif"},
+            {name: "7", src: "./img/avatar_black.gif"},
+            {name: "8", src: "./img/avatar_purple.gif"},
+            {name: "9", src: "./img/avatar_blue.gif"}
+        ];
 
         this.genres = ["Blues", "Classical", "Hip-Hop",
                         "Children", "Comedy", "Dance", "Electronic",
                         "Pop", "Jazz", "Anime", "K-Pop", "Opera",
-                        "Rock", "Vocal", "Arabic" ]
+                        "Rock", "Vocal", "Arabic" ];
 
         this.themes=[
-            {name: "Icy", value: "theme1"},
-            {name: "Sky", value: "theme2"},
-            {name: "Thunder", value: "theme3"},
-            {name: "Halloween1", value: "theme4"},
-            {name: "Halloween2", value: "theme5"},
-            {name: "WildZone", value: "theme6"},
-            {name: "Medieval", value: "theme7"},
-            {name: "Disco", value: "theme8"},
-            {name: "DiscoStar", value: "theme9"},
-            {name: "PlantWorld", value: "theme10"},
-            {name: "DJ.Penguin", value: "theme11"},
-            {name: "Splash", value: "theme12"},
-            {name: "Astro", value: "theme13"},
-            {name: "Snowy", value: "theme14"},
-        ]
+            {name: "Snowy", value: "0"},
+            {name: "Sky", value: "1"},
+            {name: "Thunder", value: "2"},
+            {name: "Halloween1", value: "3"},
+            {name: "Halloween2", value: "4"},
+            {name: "WildZone", value: "5"},
+            {name: "Medieval", value: "6"},
+            {name: "Disco", value: "7"},
+            {name: "DiscoStar", value: "8"},
+            {name: "PlantWorld", value: "9"},
+            {name: "DJ.Penguin", value: "10"},
+            {name: "Splash", value: "11"},
+            {name: "Astro", value: "12"},
+            {name: "Christmas", value: "13"}
+        ];
 
         makeObservable(this, {
             rooms: observable,
@@ -67,110 +64,112 @@ export class UserStore {
             suggestSong: action,
             LeaveRoom: action,
             addLike: action,
-            deleteRoom: action,
+            deleteRoom: action
         })
     }
 
     async getRooms() {
         try {
-            const result = (await axios.get("http://localhost:4200/rooms")).data
-            this.rooms = result
+            const result = (await axios.get(`${SERVER_URL}/rooms`)).data;
+            this.rooms = result;
         } catch (error) {
-            return error
+            return error;
         }
     }
 
     async setRoom(room) {
-        this.room = room
-
+        this.room = room;
     }
 
     compare(a, b) {
-        if (a.guests.length > b.guests.length) {
-            return -1
-        } else if (a.guests.length < b.guests.length) {
-            return 1
-        } else {
-            return 0
-        }
+        if (a.guests.length > b.guests.length)
+            return -1;
+        else if (a.guests.length < b.guests.length)
+            return 1;
+        else
+            return 0;
     }
 
     getTop10() {
-        return [...this.rooms].sort(this.compare)
+        return [...this.rooms].sort(this.compare);
     }
 
     async addLike(songID, unlike) {
         try {
-            const value = unlike ? -1 : 1
-            this.room = (await axios.put(`http://localhost:4200/vote/${this.room._id}/${songID}/${value}`)).data
-        } catch (error) {
-            console.log(error)
+            const value = unlike ? -1 : 1;
+            this.room = (await axios.put(`${SERVER_URL}/vote/${this.room._id}/${songID}/${value}`)).data;
+        }
+        catch (error) {
+            console.log(error);
         }
     }
 
     async createRoom(roomName, roomPassword, description, tags, theme) {
         //roomName, guests, roomPassword, host, description, tags, queue, theme, hostPassword, size
         try {
-            const guests = []
-            const host = this.socket.id
-            const hostPassword = this.socket.id
-            const room = { roomName, guests, roomPassword, host, description, tags, queue: [], theme, hostPassword, size: 10 }
-            console.log(room)
-            const response = (await axios.post("http://localhost:4200/room", room)).data
-            console.log(response)
-            await this.getRooms()
-            this.room = response
-        } catch (error) {
-            console.log(error)
+            const guests = [];
+            const host = this.socket.id;
+            const hostPassword = this.socket.id;
+            const room = { roomName, guests, roomPassword, host, description, tags, queue: [], theme, hostPassword, size: 10 };
+            console.log(room);
+            const response = (await axios.post(`${SERVER_URL}/room`, room)).data;
+            await this.getRooms();
+            this.room = response;
+        }
+        catch (error) {
+            console.log(error);
         }
     }
 
     async getRoom() {
         try {
-            const result = (await axios.get(`http://localhost:4200/room`, this.room._id)).data
-            this.room = result
+            const result = (await axios.get(`${SERVER_URL}/room`, this.room._id)).data;
+            this.room = result;
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
-    async LeaveRoom(){
+    async LeaveRoom() {
         try {
-            await axios.delete(`http://localhost:4200/delete/${this.room._id}/${this.socket.id}/guests`)
-            this.room = null
-            this.getRooms()
+            await axios.delete(`${SERVER_URL}/delete/${this.room._id}/${this.socket.id}/guests`);
+            this.room = null;
+            this.getRooms();
             this.socket.emit(LEAVE_ROOM);
-        } catch (error) {
-            console.log(error)
+        }
+        catch (error) {
+            console.log(error);
         }
     }
 
     async deleteRoom() {
         try {
-            await axios.delete(`http://localhost:4200/room/${this.room._id}`)
-            this.room = null
-            this.getRooms()
-        } catch (error) {
-            console.log(error)
+            await axios.delete(`${SERVER_URL}/room/${this.room._id}`);
+            this.room = null;
+            this.getRooms();
+        }
+        catch (error) {
+            console.log(error);
         }
     }
 
     async suggestSong(id, song) {
         try {
-            const newVal = {newObj: {id, song, votes: 1}}
-            this.room = (await axios.put(`http://localhost:4200/add/${this.room._id}/queue`, newVal)).data
-        } catch (error) {
-            console.log(error)
+            const newVal = {newObj: {id, song, votes: 1}};
+            this.room = (await axios.put(`${SERVER_URL}/add/${this.room._id}/queue`, newVal)).data;
+        }
+        catch (error) {
+            console.log(error);
         }
     }
 
     async addUser(userName, avatar) {
         try {
-            this.userName = userName
-            this.avatar = this.avatars.find(a => a.name === avatar)
-            this.room.guests.push({ id: this.socket.id, userName, avatar })
-            const body = { field: 'guests', newVal: this.room.guests }
-            this.room = (await axios.put(`http://localhost:4200/room/${this.room._id}`, body)).data
+            this.userName = userName;
+            this.avatar = this.avatars.find(a => a.name === avatar);
+            this.room.guests.push({ id: this.socket.id, userName, avatar });
+            const body = { field: 'guests', newVal: this.room.guests };
+            this.room = (await axios.put(`${SERVER_URL}/room/${this.room._id}`, body)).data;
             this.socket.emit(JOIN_ROOM, {
                 room: this.room._id,
                 player: {
@@ -181,11 +180,12 @@ export class UserStore {
                     y: this.player_y,
                     theme: this.room.theme
                 }
-            })
+            });
+
             this.socket.emit(ASK_FOR_VIDEO_INFORMATION);
-        } catch (error) {
-            console.log(error)
+        }
+        catch (error) {
+            console.log(error);
         }
     }
-
 }

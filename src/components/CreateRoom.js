@@ -21,32 +21,30 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function CreateRoom(props) {
-    const [roomName, setRoomName] = useState("");
-    const [roomPassword, setRoomPassword] = useState("");
-    const [description, setDescription] = useState("");
-    const [tags, setTags] = useState([]);
-    const [theme, setTheme] = useState("");
-    const { enqueueSnackbar } = useSnackbar();
-
-    const classes = useStyles();
-
-    const tagOptions = props.UserStore.genres.map((g, i) => ({ label: g, value: i }))
-    const themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value }))
+    const [roomName, setRoomName] = useState(""),
+    [roomPassword, setRoomPassword] = useState(""),
+    [description, setDescription] = useState(""),
+    [tags, setTags] = useState([]),
+    [theme, setTheme] = useState(""),
+    { enqueueSnackbar } = useSnackbar(),
+    classes = useStyles(),
+    tagOptions = props.UserStore.genres.map((g, i) => ({ label: g, value: i })),
+    themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value }));
 
     const handleClose = () => {
-        props.open(false)
+        props.open(false);
     };
 
     const updateSelect = (event) => {
-        setTags(event ? event : [])
+        setTags(event ? event : []);
     }
 
     const createRoom = () => {
         if (!roomName || !theme) {
-            enqueueSnackbar('Missing Fields', { variant: 'error' })
+            enqueueSnackbar('Missing Fields', { variant: 'error' });
         } else {
-            props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme)
-            handleClose()
+            props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme);
+            handleClose();
         }
     }
 
@@ -68,6 +66,7 @@ function CreateRoom(props) {
                     <div className={classes.paper} >
                         <TextField
                             placeholder="Room Name"
+                            label="Room Name"
                             value={roomName}
                             variant="outlined"
                             id="roomName"
@@ -75,6 +74,7 @@ function CreateRoom(props) {
                         />
                         <TextField
                             id="roomPassword"
+                            label="Password"
                             placeholder="Password (optional)"
                             type="password"
                             variant="outlined"
@@ -83,6 +83,7 @@ function CreateRoom(props) {
                         />
                         <TextField
                             placeholder="Description"
+                            label="Description"
                             value={description}
                             variant="outlined"
                             id="description"
@@ -94,13 +95,13 @@ function CreateRoom(props) {
                             options={tagOptions}
                             className="basic-multi-select"
                             classNamePrefix="select"
-                            placeholder="Select Tags"
+                            placeholder="Tags"
                             onChange={updateSelect}
                         />
                         <Select
                             options={themeOptions}
                             onChange={event => setTheme(event ? event.value : "")}
-                            placeholder="Select Theme"
+                            placeholder="Theme"
                             isClearable="true" id="themeSelect"
                         />
                         <Button variant="contained" color="secondary" onClick={createRoom} >
@@ -113,4 +114,4 @@ function CreateRoom(props) {
     )
 }
 
-export default inject("UserStore")(observer(CreateRoom))
+export default inject("UserStore")(observer(CreateRoom));

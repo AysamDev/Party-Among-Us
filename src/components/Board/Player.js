@@ -1,8 +1,14 @@
 import Sprite from './Sprite.js';
 
 export default class Player extends Sprite {
-    static ANIMATION_TYPE = { IDLE: 0, WALK: 1, DANCE: 4 };
+    static ANIMATION_TYPE = { IDLE: 0, WALK: 1, DANCE: 4, SPAWN: 5 };
     static DIRECTION = { RIGHT: 0, LEFT: 2 };
+    static PLAYER_SIZE = {width: 85, height: 85};
+    static SOUNDS = {
+        "message": new Audio('./sounds/message.mp3'),
+        "spawn": new Audio('./sounds/spawn.mp3'),
+        "vote": new Audio('./sounds/vote.mp3')
+    };
 
     constructor(playerProps, context, image) {
         super({
@@ -11,20 +17,24 @@ export default class Player extends Sprite {
             context: context,
             image: image,
         });
-        this.width = playerProps.width;
-        this.height = playerProps.height;
+
+        this.width = Player.PLAYER_SIZE.width;
+        this.height = Player.PLAYER_SIZE.height;
         this.playerId = playerProps.playerId;
         this.userName = playerProps.userName;
         this.avatar = playerProps.avatar;
         this.theme = playerProps.theme;
-        this.dir = Player.DIRECTION.RIGHT;
-        this.message = playerProps.playerMessage//null;
+        this.dir = Player.DIRECTION.LEFT;
+        this.message = playerProps.playerMessage;
+        this.row = Player.ANIMATION_TYPE.IDLE;
         this.timerMessage = 500;
-        this.frameIndex = 0;
-        this.row = 0;
         this.tickCount = 0;
-        this.ticksPerFrame = 12;
-        this.frames = 1;
+        this.spawned = true;
+        this.disableSpawn();
+    }
+
+    disableSpawn() {
+        setTimeout(() => {this.spawned = false}, 600);
     }
 
     sendMessage(message) {
@@ -35,6 +45,7 @@ export default class Player extends Sprite {
                 this.movePlayer(null);
             }
             else {
+                Player.SOUNDS.message.play();
                 this.message = message;
                 this.timerMessage = 500;
             }
@@ -42,7 +53,19 @@ export default class Player extends Sprite {
     }
 
     movePlayer(targetX, targetY) {
-        if (targetX === null) {
+        if (this.spawned) {
+            if (this.getAnimationType() !== Player.ANIMATION_TYPE.SPAWN) {
+                Player.SOUNDS.spawn.play();
+                this.animateSpawn();
+            }
+            else if (targetX !== this.x || targetY !== this.y) {
+                this.spawned = false;
+                this.animateWalk();
+            }
+
+            return;
+        }
+        else if (targetX === null) {
             if (this.getAnimationType() !== Player.ANIMATION_TYPE.DANCE) {
                 this.animateDance();
             }
@@ -88,24 +111,31 @@ export default class Player extends Sprite {
     }
 
     animateWalk() {
-        this.frames = 12;
+        this.frames = 13;
         this.frameIndex = 0;
         this.row = 1 + this.dir;
-        this.ticksPerFrame = 12;
+        this.ticksPerFrame = 4;
     }
 
     animateDance() {
         this.frames = 25;
         this.frameIndex = 0;
         this.row = 4;
-        this.ticksPerFrame = 12;
+        this.ticksPerFrame = 4;
     }
 
     animateIdle() {
         this.frames = 1;
         this.frameIndex = 0;
         this.row = 0 + this.dir;
-        this.ticksPerFrame = 12;
+        this.ticksPerFrame = 1;
+    }
+
+    animateSpawn() {
+        this.frames = 7;
+        this.frameIndex = 0;
+        this.row = 5;
+        this.ticksPerFrame = 4;
     }
 
     getAnimationType() {

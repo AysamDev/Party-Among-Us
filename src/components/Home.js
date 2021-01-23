@@ -5,14 +5,14 @@ import { TextField } from '@material-ui/core';
 
 //textfield: at the beginning there is top 10
 function Home(props) {
-    const [searchInput, setSearchInput] = useState("")
+    const [searchInput, setSearchInput] = useState(""),
+    heading = searchInput.length ? "Search Results" :"Top 10";
 
     const dynamicSearch = () => {
-        return props.UserStore.rooms.filter(r => r.roomName.toLowerCase().includes(searchInput.toLowerCase()) )
+        return props.UserStore.rooms.filter(r => r.roomName.toLowerCase().includes(searchInput.toLowerCase()));
     }
 
-    const rooms = searchInput.length ?  dynamicSearch() : props.UserStore.getTop10()
-    const heading = searchInput.length ? "Search Results" :"Top 10"
+    const rooms = searchInput.length ?  dynamicSearch() : props.UserStore.getTop10();
 
     return (
         <div id="home">
@@ -30,4 +30,4 @@ function Home(props) {
     )
 }
 
-export default inject("UserStore")(observer(Home))
+export default inject("UserStore")(observer(Home));
