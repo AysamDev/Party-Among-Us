@@ -5,7 +5,7 @@ import { observer, inject } from 'mobx-react';
 
 const Video = observer((props) => {
 	const webSocket = useRef(props.UserStore.socket)
-	let { room, currVidId, vidPlayer, currentVidTime, removeSong, nextVidId, sortQueue } = props.UserStore;
+	let { room, currVidId, vidPlayer, currentVidTime, removeSong, /* nextVidId, sortQueue*/ } = props.UserStore;
 
 	const opts = {
 		height: '220',
@@ -41,22 +41,31 @@ const Video = observer((props) => {
 		});
 
 		webSocket.current.on(ASK_FOR_VIDEO_INFORMATION, () => {
-			const data = {
-				vidId: currVidId,
-				currentTime: vidPlayer.getCurrentTime(),
-				room: room._id
+			const videoData = {
+				currVidId: currVidId,
+				vidPlayer: vidPlayer,
+				currentVidTime: vidPlayer.getCurrentTime(),
+				socket: webSocket.current.id,
+				room: props.UserStore.room
 			}
-			webSocket.current.emit(SYNC_VIDEO_INFORMATION, data);
+			// const data = {
+			// 	vidId: currVidId,
+			// 	currentTime: vidPlayer.getCurrentTime(),
+			// 	room: room._id
+			// }
+			// if (webSocket.current.id === room.host) {
+				webSocket.current.emit(SYNC_VIDEO_INFORMATION, videoData);
+			// } else {
+			// if (webSocket.current.id !== room.host) {
+				webSocket.current.on(SYNC_VIDEO_INFORMATION, (data) => {
+					//room = data.room
+					vidPlayer.loadVideoById({
+						videoId: data.currVidId,
+						startSeconds: data.currentVidTime,
+					});
+				});
+			// }
 		});
-
-		webSocket.current.on(SYNC_VIDEO_INFORMATION, (data) => {
-			vidPlayer.loadVideoById({
-				videoId: data.vidId,
-				startSeconds: data.currentTime,
-				room: room._id
-			});
-		});
-
 	}
 
 	const syncTime = (currentTime) => {
@@ -73,17 +82,27 @@ const Video = observer((props) => {
 				webSocket.current.emit(PLAY, { room: room._id });
 				break;
 			case 0:
-				if (sortQueue[1]) {
-					nextVidId = sortQueue[1].id
-					webSocket.current.emit(NEW_VIDEO, { vidId: nextVidId, room: room._id });
-					console.log(sortQueue)
-					removeSong(currVidId)
-					console.log('song removed???????????')
-					console.log(sortQueue)
-					currVidId = nextVidId
-				} else {
-					sortQueue[0] = false
-				}
+				// if (webSocket.current.id === room.host) {
+				// 	webSocket.current.emit(NEW_PLAYER_HOST, { vidId: 'pjxU-vSPNXE', socket: room: room._id })
+				// }
+				// if (room.queue) {
+				// 	if (room.queue[]) {
+				// 		const nextVidId = sortQueue[1].id
+				// console.log("?????????????")
+				webSocket.current.emit(NEW_VIDEO, { vidId: 'pjxU-vSPNXE', room: room._id });
+				// removeSong(currVidId)
+				//sortQueue.splice(0, 1)
+				// console.log('song removed???????????')
+				// console.log(sortQueue)
+				// currVidId = sortQueue[0].id
+				// 	} else {
+				// 		props.UserStore.room.queue = null
+				// 	}
+				// }
+				// } else {
+				// 	// console.log('else')
+				// 	// sortQueue[0] = null
+				// }
 				break;
 			case 1:
 				webSocket.current.emit(SYNC_TIME, { currentTime: vidPlayer.getCurrentTime(), room: room._id });
@@ -102,6 +121,7 @@ const Video = observer((props) => {
 
 	return (
 		<div>
+			{console.log(room.queue)}
 			<div className="responsive-video">
 				<YouTube
 					videoId={currVidId}

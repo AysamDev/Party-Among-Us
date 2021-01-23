@@ -38,7 +38,7 @@ function SideMenu(props) {
                     <p>{props.UserStore.room.description}</p>
                 </div>
             </div>
-            {props.UserStore.sortQueue[0] ? (props.UserStore.currVidId = props.UserStore.sortQueue[0].id, <Video />) : "Add A Song :)"}
+            {props.UserStore.room.queue ? (props.UserStore.room.queue[0] ? (props.UserStore.currVidId = props.UserStore.sortQueue[0].id, <Video />) : "Add A Song :)") : "Add A Song :)"}
             <Playlist />
             <TextField
                 required label="Suggest Song"

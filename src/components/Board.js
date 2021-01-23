@@ -32,15 +32,15 @@ const Board = observer((props) => {
 
 
     const canvasRef = useRef(null),
-    messageRef = useRef(null),
-    boardRef = useRef(null),
-    [theme, setTheme] = useState(props.UserStore.room.theme),
-    classes = useStyles(),
-    webSocket = useRef(props.UserStore.socket),
-    themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value })),
-    [alert, setAlert] = useState({value: false, text: ""}),
-    CONNECTION_ERROR = "Connection Error!";
-    let { room, userName, avatar} = props.UserStore;
+        messageRef = useRef(null),
+        boardRef = useRef(null),
+        [theme, setTheme] = useState(props.UserStore.room.theme),
+        classes = useStyles(),
+        webSocket = useRef(props.UserStore.socket),
+        themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value })),
+        [alert, setAlert] = useState({ value: false, text: "" }),
+        CONNECTION_ERROR = "Connection Error!";
+    let { room, userName, avatar } = props.UserStore;
 
     const playerIndex = (socket_id) => {
         const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id);
@@ -58,7 +58,7 @@ const Board = observer((props) => {
         }
         else {
             //todo remove player from room
-            setAlert({value: true, text: CONNECTION_ERROR});
+            setAlert({ value: true, text: CONNECTION_ERROR });
         }
     }
 
@@ -80,7 +80,7 @@ const Board = observer((props) => {
         }
         else {
             //todo remove player from room
-            setAlert({value: true, text: CONNECTION_ERROR});
+            setAlert({ value: true, text: CONNECTION_ERROR });
         }
     }
 
@@ -109,7 +109,7 @@ const Board = observer((props) => {
         }
         else {
             //todo remove player from room
-            setAlert({value: true, text: CONNECTION_ERROR});
+            setAlert({ value: true, text: CONNECTION_ERROR });
         }
     }
 
@@ -118,7 +118,7 @@ const Board = observer((props) => {
         const context = canvas.getContext("2d");
         boardRef.current = new BoardCanvas(canvas, context, theme);
 
-        if(webSocket.current.id === room.host){
+        if (webSocket.current.id === room.host) {
             room.guests.forEach(g => boardRef.current.newPlayer({
                 playerId: g.id,
                 userName: g.userName,
@@ -129,7 +129,7 @@ const Board = observer((props) => {
                 height: 85,
                 theme: room.theme
             }));
-        }else{
+        } else {
             webSocket.current.on(NEW_PLAYER_HOST, (data) => {
                 data.forEach(d => boardRef.current.newPlayer({
                     width: d.width,
@@ -140,7 +140,7 @@ const Board = observer((props) => {
                     theme: d.theme,
                     x: d.x,
                     y: d.y,
-                }, { x: data.x, y: data.y}))
+                }, { x: data.x, y: data.y }))
             })
         }
 
@@ -166,8 +166,8 @@ const Board = observer((props) => {
                 y: data.y,
                 theme: data.theme
             });
-            if(webSocket.current.id === room.host){
-                webSocket.current.emit(NEW_PLAYER_HOST, {players: boardRef.current.PLAYERS, socket: data.playerId})
+            if (webSocket.current.id === room.host) {
+                webSocket.current.emit(NEW_PLAYER_HOST, { players: boardRef.current.PLAYERS, socket: data.playerId })
             }
         });
 

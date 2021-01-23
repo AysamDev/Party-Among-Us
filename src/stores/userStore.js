@@ -1,4 +1,4 @@
-import { makeObservable, observable, action, computed} from 'mobx';
+import { makeObservable, observable, action, computed } from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
 import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH } from '../Constants';
@@ -16,41 +16,41 @@ export class UserStore {
         this.avatar = "";
         this.currVidId = '';
         this.vidPlayer = null;
-        this.currentVidTime = 0;
+        this.currentVidTime = (this.vidPlayer ? this.vidPlayer.getCurrentTime() : 0);
         this.nextVidId = '';
         this.avatars = [
-            {name: "0" , src: "./img/avatar_red.gif"},
-            {name: "1", src: "./img/avatar_yellow.gif"},
-            {name: "2" , src: "./img/avatar_orange.gif"},
-            {name: "3", src: "./img/avatar_white.gif"},
-            {name: "4", src: "./img/avatar_lime.gif"},
-            {name: "5" , src: "./img/avatar_pink.gif"},
-            {name: "6", src: "./img/avatar_cyan.gif"},
-            {name: "7", src: "./img/avatar_black.gif"},
-            {name: "8", src: "./img/avatar_purple.gif"},
-            {name: "9", src: "./img/avatar_blue.gif"}
+            { name: "0", src: "./img/avatar_red.gif" },
+            { name: "1", src: "./img/avatar_yellow.gif" },
+            { name: "2", src: "./img/avatar_orange.gif" },
+            { name: "3", src: "./img/avatar_white.gif" },
+            { name: "4", src: "./img/avatar_lime.gif" },
+            { name: "5", src: "./img/avatar_pink.gif" },
+            { name: "6", src: "./img/avatar_cyan.gif" },
+            { name: "7", src: "./img/avatar_black.gif" },
+            { name: "8", src: "./img/avatar_purple.gif" },
+            { name: "9", src: "./img/avatar_blue.gif" }
         ];
 
         this.genres = ["Blues", "Classical", "Hip-Hop",
-                        "Children", "Comedy", "Dance", "Electronic",
-                        "Pop", "Jazz", "Anime", "K-Pop", "Opera",
-                        "Rock", "Vocal", "Arabic" ];
+            "Children", "Comedy", "Dance", "Electronic",
+            "Pop", "Jazz", "Anime", "K-Pop", "Opera",
+            "Rock", "Vocal", "Arabic"];
 
-        this.themes=[
-            {name: "Snowy", value: "0"},
-            {name: "Sky", value: "1"},
-            {name: "Thunder", value: "2"},
-            {name: "Halloween1", value: "3"},
-            {name: "Halloween2", value: "4"},
-            {name: "WildZone", value: "5"},
-            {name: "Medieval", value: "6"},
-            {name: "Disco", value: "7"},
-            {name: "DiscoStar", value: "8"},
-            {name: "PlantWorld", value: "9"},
-            {name: "DJ.Penguin", value: "10"},
-            {name: "Splash", value: "11"},
-            {name: "Astro", value: "12"},
-            {name: "Christmas", value: "13"}
+        this.themes = [
+            { name: "Snowy", value: "0" },
+            { name: "Sky", value: "1" },
+            { name: "Thunder", value: "2" },
+            { name: "Halloween1", value: "3" },
+            { name: "Halloween2", value: "4" },
+            { name: "WildZone", value: "5" },
+            { name: "Medieval", value: "6" },
+            { name: "Disco", value: "7" },
+            { name: "DiscoStar", value: "8" },
+            { name: "PlantWorld", value: "9" },
+            { name: "DJ.Penguin", value: "10" },
+            { name: "Splash", value: "11" },
+            { name: "Astro", value: "12" },
+            { name: "Christmas", value: "13" }
         ];
 
         makeObservable(this, {
@@ -80,14 +80,14 @@ export class UserStore {
         this.listenToSocket();
     }
 
-    listenToSocket(){
+    listenToSocket() {
         this.socket.on(NEW_SONG, (data) => {
-            const {id, song} = data;
-            this.room.queue.push({id, song, votes: 1});
+            const { id, song } = data;
+            this.room.queue.push({ id, song, votes: 1 });
         })
 
         this.socket.on(VOTE_SONG, (data) => {
-            const {songID, value} = data;
+            const { songID, value } = data;
             this.room.queue.find(q => q.id === songID).votes += value;
         })
 
@@ -115,7 +115,7 @@ export class UserStore {
             return 0;
     }
 
-    compareSongs(a, b){
+    compareSongs(a, b) {
         if (a.votes > b.votes) {
             return -1;
         } else if (a.votes < b.votes) {
@@ -125,7 +125,7 @@ export class UserStore {
         }
     }
 
-    get sortQueue(){
+    get sortQueue() {
         return [...this.room.queue].sort(this.compareSongs);
     }
 
@@ -150,7 +150,7 @@ export class UserStore {
             this.avatar = this.avatars.find(a => a.name === avatar);
             this.userName = userName;
             const guests = [];
-            guests.push({id: this.socket.id, userName, avatar});
+            guests.push({ id: this.socket.id, userName, avatar });
             const hostPassword = this.socket.id;
             const room = { roomName, guests, roomPassword, host, description, tags, queue: [], theme, hostPassword, size: 10 };
             this.room = (await axios.post(`${SERVER_URL}/room`, room)).data;
@@ -194,7 +194,7 @@ export class UserStore {
 
     async suggestSong(id, song) {
         try {
-            const newVal = {id, song, votes: 1};
+            const newVal = { id, song, votes: 1 };
             this.room = (await axios.put(`${SERVER_URL}/add/${this.room._id}/queue`, newVal)).data;
             this.socket.emit(SUGGEST_SONG, {
                 room: this.room._id,
@@ -207,10 +207,13 @@ export class UserStore {
         }
     }
 
-    async removeSong(vidId){
+    async removeSong(vidId) {
         try {
+            console('removeSong')
+            console.log(vidId)
+            console.log(this.room._id)
             this.room = (await axios.delete(`${SERVER_URL}/delete/${this.room._id}/${vidId}/queue`)).data;
-            this.room.splice(0, 1);
+            //this.room.splice(0, 1);
         } catch (error) {
             console.log(error);
         }
