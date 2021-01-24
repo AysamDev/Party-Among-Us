@@ -1,11 +1,16 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const api = require('./server/routes/api');
-const Room = require('./server/models/Room.js');
-const PORT = process.env.PORT || 4200;
-const URI = process.env.MONGODB_URI || 'mongodb://localhost/roomsDB';
-const app = express();
-const server = require('http').createServer(app);
+const express = require('express'),
+mongoose = require('mongoose'),
+api = require('./server/routes/api'),
+Room = require('./server/models/Room.js'),
+path = require('path'),
+PORT = process.env.PORT || 4200,
+URI = process.env.MONGODB_URI || 'mongodb://localhost/AUP_DB',
+app = express(),
+server = require('http').createServer(app),
+{ PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH
+	,ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
+	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM, CHANGE_THEME } = require('./src/Constants');
+
 const io = require('socket.io')(server, {
 	cors: {
 		origin: '*',
@@ -14,10 +19,6 @@ const io = require('socket.io')(server, {
 	pingInterval: 10000,
 	pingTimeout: 5000
 });
-
-const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH
-	,ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
-	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM, CHANGE_THEME } = require('./src/Constants');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,7 +31,12 @@ app.use(function (req, res, next) {
 	next();
 });
 
+app.use(express.static('build'));
 app.use(API_PATH, api);
+
+app.get('/*', function (req, res) {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 mongoose.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 })
 .then(function () {
