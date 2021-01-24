@@ -40,7 +40,7 @@ const Board = observer((props) => {
     themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value })),
     [alert, setAlert] = useState({value: false, text: ""}),
     CONNECTION_ERROR = "Connection Error!";
-    let { room, userName, avatar} = props.UserStore;
+    let { room } = props.UserStore;
 
     const playerIndex = (socket_id) => {
         const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id);

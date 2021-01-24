@@ -5,7 +5,6 @@ const ObjectId = require('mongodb').ObjectId;
 
 router.get('/rooms', async function (req, res) {
     try {
-        console.log('b');
         const rooms = await Room.find({});
         res.send(rooms);
     }
@@ -17,7 +16,6 @@ router.get('/rooms', async function (req, res) {
 
 router.get('/room/:roomID', async function (req, res) {
     try {
-        console.log('this is jason');
         console.log(req.params.roomID);
         const id = ObjectId(req.params.roomID);
         const room = await Room.findById(id);
@@ -31,8 +29,6 @@ router.get('/room/:roomID', async function (req, res) {
 
 router.post('/room', async function (req, res) {
     try {
-        console.log('c');
-        console.log('this is room route');
         const room = new Room({ ...req.body });
         await room.save();
         res.send(room);
@@ -45,7 +41,6 @@ router.post('/room', async function (req, res) {
 
 router.delete('/room/:roomID', async function (req, res) {
     try {
-        console.log('d');
         const room = await Room.findByIdAndRemove({ _id: req.params.roomID });
         res.send(room);
     }
@@ -57,7 +52,6 @@ router.delete('/room/:roomID', async function (req, res) {
 
 router.put('/room/:roomID', async function (req, res) {
     try {
-        console.log('e');
         const {newVal, field} = req.body;
         const room = await Room.findOneAndUpdate({ _id: req.params.roomID }, { [field]: newVal }, { new: true });
         res.send(room);
@@ -66,13 +60,12 @@ router.put('/room/:roomID', async function (req, res) {
         console.log(error);
         res.send(error);
     }
-})
+});
 
 router.put('/add/:roomID/:field', async function (req, res) {
     const newObj = req.body;
     const { roomID, field } = req.params;
     try {
-        console.log('fa');
         const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': {[field]: newObj} }, { new: true });
         res.send(room);
     }
@@ -80,13 +73,12 @@ router.put('/add/:roomID/:field', async function (req, res) {
         console.log(error);
         res.send(error);
     }
-})
+});
 
 
 router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
     const { roomID, objectID, field } = req.params;
     try {
-        console.log('g');
         const room = await Room.findOneAndUpdate({ _id: roomID }, { "$pull": { [field]: { "id": objectID } } }, { new: true });
         res.send(room);
     }
@@ -94,20 +86,20 @@ router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
         console.log(error);
         res.send(error);
     }
-})
+});
 
 router.put('/vote/:roomID/:songID/:value', async (req, res) => {
     let {roomID, songID, value} = req.params;
     value = parseInt(value);
 
     try {
-        console.log('at');
-        const room = await Room.findOneAndUpdate({ "_id" :  roomID, "queue.id" : songID}, {$inc : {"queue.$.votes" : value } }, { new: true });
+        const room = await Room.findOneAndUpdate({ "_id": roomID, "queue.id" : songID}, {$inc : {"queue.$.votes" : value } }, { new: true });
         res.send(room);
-    } catch (error) {
+    }
+    catch (error) {
         console.log(error);
         res.send(error);
     }
-})
+});
 
 module.exports = router;

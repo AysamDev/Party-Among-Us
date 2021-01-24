@@ -52,6 +52,8 @@ export default class BoardCanvas {
 
     drawBubbleChat(player) {
         if (player.message) {
+            this.CONTEXT.shadowOffsetX = 0;
+            this.CONTEXT.shadowOffsetY = 0;
             this.speechBubble = new SpeechBubble(this.CONTEXT, player.y - 34, player.x - 56);
             this.speechBubble.setTargetPos(player.x, player.y);
             this.speechBubble.text = player.message;
@@ -73,8 +75,8 @@ export default class BoardCanvas {
         this.CONTEXT.font = "bold 17px monospace";
         this.CONTEXT.fillStyle = "rgba(255, 255, 255, 0.9)";
         this.CONTEXT.shadowColor = "black";
-        this.CONTEXT.shadowOffsetX = 1;
-        this.CONTEXT.shadowOffsetY = 1;
+        this.CONTEXT.shadowOffsetX = 2;
+        this.CONTEXT.shadowOffsetY = 2;
         this.CONTEXT.textAlign = "center";
         this.CONTEXT.fillText(player.userName, player.x + 25, player.y + 90);
     }

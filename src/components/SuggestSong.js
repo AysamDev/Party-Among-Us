@@ -24,7 +24,7 @@ function SuggestSong(props) {
 
     const clickEvent = async (event) => {
         const {id, innerHTML} = event.target;
-        await props.UserStore.getRoom();
+        await props.UserStore.getRoom(props.UserStore.room._id);
         const ifPreviouslyAdded = props.UserStore.room.queue.find(q => q.id === id);
         ifPreviouslyAdded ? await props.UserStore.addLike(id) : await props.UserStore.suggestSong(id, innerHTML);
         handleClose();
