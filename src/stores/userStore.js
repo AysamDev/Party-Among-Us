@@ -1,7 +1,7 @@
 import { makeObservable, observable, action, computed} from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
-import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH } from '../Constants';
+import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH, DEFAULT_PLAYER_POS, CHANGE_THEME } from '../Constants';
 const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
 
 export class UserStore {
@@ -10,8 +10,8 @@ export class UserStore {
         this.getRooms();
         this.room = {};
         this.rooms = [];
-        this.player_x = 815;
-        this.player_y = 487;
+        this.player_x = DEFAULT_PLAYER_POS.x;
+        this.player_y = DEFAULT_PLAYER_POS.y;
         this.userName = "";
         this.avatar = "";
         this.currVidId = '';
@@ -233,6 +233,21 @@ export class UserStore {
                     theme: this.room.theme
                 }
             })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async changeTheme(room_id, themeNum) {
+        try {
+            const theme = {newVal: themeNum, field: 'theme'};
+            await axios.put(`${SERVER_URL}/room/${room_id}`, theme);
+            this.socket.emit(CHANGE_THEME, {
+                room: room_id,
+                player: {
+                    theme: themeNum
+                }
+            });
         } catch (error) {
             console.log(error);
         }

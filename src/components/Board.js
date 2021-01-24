@@ -8,8 +8,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import InputEmoji from "react-input-emoji";
 import { observer, inject } from 'mobx-react';
 import Alert from './Alert';
-import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE, REMOVE_PLAYER, NEW_PLAYER_HOST } from '../Constants';
-
+import { ADD_PLAYER, MOVE_PLAYER, PLAYER_MOVED, SEND_MESSAGE, RECEIVED_MESSAGE, REMOVE_PLAYER, NEW_PLAYER_HOST, CHANGE_THEME } from '../Constants';
+import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     selectTheme: {
@@ -29,9 +29,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Board = observer((props) => {
-
-
-    const canvasRef = useRef(null),
+    const SOUNDS = {
+        "disconnect": new Audio('./sounds/disconnect.wav'),
+        "vote": new Audio('./sounds/vote.wav')
+    },
+    canvasRef = useRef(null),
     messageRef = useRef(null),
     boardRef = useRef(null),
     [theme, setTheme] = useState(props.UserStore.room.theme),
@@ -39,7 +41,8 @@ const Board = observer((props) => {
     webSocket = useRef(props.UserStore.socket),
     themeOptions = props.UserStore.themes.map(t => ({ label: t.name, value: t.value })),
     [alert, setAlert] = useState({value: false, text: ""}),
-    CONNECTION_ERROR = "Connection Error!";
+    CONNECTION_ERROR = "Connection Error!",
+    { enqueueSnackbar } = useSnackbar();
     let { room } = props.UserStore;
 
     const playerIndex = (socket_id) => {
@@ -57,7 +60,6 @@ const Board = observer((props) => {
             });
         }
         else {
-            //todo remove player from room
             setAlert({value: true, text: CONNECTION_ERROR});
         }
     }
@@ -66,6 +68,7 @@ const Board = observer((props) => {
         const theTheme = e.value;
         boardRef.current.changeTheme(theTheme);
         setTheme(theTheme);
+        props.UserStore.changeTheme(room._id, theTheme);
     }
 
     const sendMessage = () => {
@@ -79,7 +82,6 @@ const Board = observer((props) => {
             });
         }
         else {
-            //todo remove player from room
             setAlert({value: true, text: CONNECTION_ERROR});
         }
     }
@@ -108,7 +110,6 @@ const Board = observer((props) => {
             boardRef.current.PLAYERS[playerIndex(playerId)].targetPos = { x, y };
         }
         else {
-            //todo remove player from room
             setAlert({value: true, text: CONNECTION_ERROR});
         }
     }
@@ -117,47 +118,33 @@ const Board = observer((props) => {
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
         boardRef.current = new BoardCanvas(canvas, context, theme);
+        boardRef.current.start();
 
-        if(webSocket.current.id === room.host){
+        if (webSocket.current.id === room.host) {
             room.guests.forEach(g => boardRef.current.newPlayer({
                 playerId: g.id,
                 userName: g.userName,
                 avatar: g.avatar,
                 x: props.UserStore.player_x,
                 y: props.UserStore.player_y,
-                width: 85,
-                height: 85,
                 theme: room.theme
             }));
-        }else{
+        }
+        else {
             webSocket.current.on(NEW_PLAYER_HOST, (data) => {
                 data.forEach(d => boardRef.current.newPlayer({
-                    width: d.width,
-                    height: d.height,
                     playerId: d.playerId,
                     userName: d.userName,
                     avatar: d.avatar,
                     theme: d.theme,
                     x: d.x,
                     y: d.y,
-                }, { x: data.x, y: data.y}))
+                }, { x: d.x, y: d.y }));
             })
         }
 
-        // room.guests.forEach(g => boardRef.current.newPlayer({
-        //     playerId: g.id,
-        //     userName: g.userName,
-        //     avatar: g.avatar,
-        //     x: 350,
-        //     y: 350,
-        //     width: 85,
-        //     height: 85,
-        //     theme: room.theme
-        // }));
-
-        boardRef.current.start();
-
         webSocket.current.on(ADD_PLAYER, (data) => {
+            enqueueSnackbar(`${data.userName} has joined the room.`, { variant: 'success' });
             boardRef.current.newPlayer({
                 playerId: data.playerId,
                 userName: data.userName,
@@ -166,8 +153,8 @@ const Board = observer((props) => {
                 y: data.y,
                 theme: data.theme
             });
-            if(webSocket.current.id === room.host){
-                webSocket.current.emit(NEW_PLAYER_HOST, {players: boardRef.current.PLAYERS, socket: data.playerId})
+            if (webSocket.current.id === room.host) {
+                webSocket.current.emit(NEW_PLAYER_HOST, {players: boardRef.current.PLAYERS, socket: data.playerId});
             }
         });
 
@@ -181,10 +168,20 @@ const Board = observer((props) => {
             boardRef.current.PLAYERS[playerIndex(id)].sendMessage(message);
         });
 
+        webSocket.current.on(CHANGE_THEME, (data) => {
+            if (data.theme) {
+                boardRef.current.changeTheme(data.theme);
+                setTheme(data.theme);
+            }
+        });
+
         webSocket.current.on(REMOVE_PLAYER, (data) => {
             const index = playerIndex(data);
+            const userName = boardRef.current.PLAYERS[index].userName;
+            SOUNDS.disconnect.play();
             boardRef.current.PLAYERS.splice(index, 1);
-        })
+            enqueueSnackbar(`${userName} has Left the room.`, { variant: 'warning' });
+        });
     }, []);
 
     return (
@@ -196,10 +193,13 @@ const Board = observer((props) => {
                 <Button type="button" onClick={doDance} className={classes.btnDance} variant="contained" color="secondary">Dance</Button>
             </FormControl>
             <br />
-            <FormControl className={classes.selectTheme}>
-                <InputLabel color="secondary">Select a theme:</InputLabel>
-                <Select options={themeOptions} placeholder="Select a theme:" onChange={onSelectTheme} name="select_theme" color="secondary" />
-            </FormControl>
+            {
+                webSocket.current.id === room.host &&
+                <FormControl className={classes.selectTheme}>
+                    <InputLabel color="secondary">Select a theme:</InputLabel>
+                    <Select options={themeOptions} placeholder="Select a theme" onChange={onSelectTheme} name="select_theme" color="secondary" />
+                </FormControl>
+            }
             {alert.value && <Alert text={alert.text} />}
         </div>
     )

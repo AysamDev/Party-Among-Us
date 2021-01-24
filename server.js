@@ -17,8 +17,7 @@ const io = require('socket.io')(server, {
 
 const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH
 	,ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
-	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM } = require('./src/Constants');
-
+	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM, CHANGE_THEME } = require('./src/Constants');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -28,19 +27,18 @@ app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-
 	next();
 });
 
 app.use(API_PATH, api);
 
 mongoose.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 })
-	.then(function () {
-		server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-	})
-	.catch(function (err) {
-		console.log(err.message);
-	});
+.then(function () {
+	server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+})
+.catch(function (err) {
+	console.log(err.message);
+});
 
 io.on('connection', function (socket) {
 	let current_room;
@@ -50,6 +48,10 @@ io.on('connection', function (socket) {
 		current_room = data.room;
 		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
 		socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
+	});
+
+	socket.on(CHANGE_THEME, async (data) => {
+		data.player && socket.to(data.room).emit(CHANGE_THEME, data.player);
 	});
 
 	socket.on(LEAVE_ROOM, () => {

@@ -20,4 +20,6 @@ module.exports = {
   REMOVE_PLAYER: 'REMOVE_PLAYER',
   NEW_PLAYER_HOST: 'NEW_PLAYER_HOST',
   SERVER_PATH: 'http://localhost:4200',
+  CHANGE_THEME: 'CHANGE_THEME',
+  DEFAULT_PLAYER_POS: { x: 815, y: 487}
 }
