@@ -42,30 +42,23 @@ function SideMenu(props) {
             if(socket.id === room.host && !currVidId && sortQueue.length){
                 const vidId = getNextVideoID()
                 console.log('sortQueue at index 0')
+                console.log(room.queue)
                 console.log(vidId)
                 const data = {
                     room: room._id,
                     song: vidId,
                     time: 0
                 }
-                await props.UserStore.removeSong(vidId)
                 socket.emit(PLAY_SONG, data)
-                
-                const timer = setInterval(() => {
-                    if(props.UserStore.vidPlayer){
-                        setTimeout(() => {
-                            props.UserStore.socket.emit(SYNC_TIME, { 
-                                currentTime: props.UserStore.vidPlayer.getCurrentTime(), 
-                                room: props.UserStore.room._id 
-                            })
-                            console.log('emit after new song played')
-                        }, 7000);
-                        clearInterval(timer)
-                    }
-                }, 2000);
-
                 props.UserStore.setCurrVid(vidId)
                 setVideoComp(<Video videoId={vidId} start={0} />)
+                setTimeout(() => {
+                    props.UserStore.socket.emit(SYNC_TIME, { 
+                        currentTime: props.UserStore.vidPlayer.getCurrentTime(), 
+                        room: props.UserStore.room._id 
+                    })
+                }, 7000);
+                await props.UserStore.removeSong(vidId)
             }else if(currVidId && currVidId != sortQueue[0]){
                 setVideoComp(<Video videoId={currVidId} start={currentVidTime}/>) 
             }

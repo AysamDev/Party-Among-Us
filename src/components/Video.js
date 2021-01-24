@@ -11,9 +11,9 @@ const Video = observer((props) => {
 		height: '220',
 		width: '440',
 		playerVars: {
-			controls: 1, //change to zero if we decide to remove control
+			controls: 0, //change to zero if we decide to remove control
 			autoplay: 1,
-			start: props.start===0 ? 0 : Math.ceil(props.start)+5,
+			start: props.start ?  Math.ceil(props.start)+5 : 0
 		}
 	}
 

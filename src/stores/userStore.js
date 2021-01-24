@@ -103,6 +103,7 @@ export class UserStore {
             this.setCurrVid(data.currVidId)
             this.setCurrVidTime(data.time)
             setTimeout(() => {
+                console.log('here emitted to sync when info arrive')
                 this.socket.emit(HOST_SYNC_TIME, this.room.host)
             }, 6000);
         })
