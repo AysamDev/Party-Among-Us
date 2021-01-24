@@ -16,8 +16,8 @@ export class UserStore {
         this.avatar = "";
         this.currVidId = '';
         this.vidPlayer = null;
-        this.currentVidTime = (this.vidPlayer ? this.vidPlayer.getCurrentTime() : 0);
-        this.nextVidId = '';
+        //this.currentVidTime = 0 //(this.vidPlayer ? this.vidPlayer.getCurrentTime() : 0);
+        // this.nextVidId = '';
         this.avatars = [
             { name: "0", src: "./img/avatar_red.gif" },
             { name: "1", src: "./img/avatar_yellow.gif" },
@@ -62,8 +62,10 @@ export class UserStore {
             player_y: observable,
             vidPlayer: observable,
             currVidId: observable,
-            currentVidTime: observable,
-            nextVidId: observable,
+            //currentVidTime: observable,
+            // nextVidId: observable,
+            changeVidPlayer: action,
+            changeCurrVideoId: action,
             createRoom: action,
             removeSong: action,
             getRoom: action,
@@ -91,6 +93,14 @@ export class UserStore {
             this.room.queue.find(q => q.id === songID).votes += value;
         })
 
+    }
+
+    changeCurrVideoId(vidID){
+        this.currVidId = vidID
+    }
+
+    changeVidPlayer(vidPlayer){
+        this.vidPlayer = vidPlayer
     }
 
     async getRooms() {
@@ -126,7 +136,12 @@ export class UserStore {
     }
 
     get sortQueue() {
-        return [...this.room.queue].sort(this.compareSongs);
+        if(this.room.queue && this.room.queue[0]){
+            return [...this.room.queue].sort(this.compareSongs);
+        }else{
+            return []
+        }
+        //return [...this.room.queue].sort(this.compareSongs);
     }
 
     getTop10() {

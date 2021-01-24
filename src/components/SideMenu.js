@@ -26,6 +26,15 @@ function SideMenu(props) {
         }
     }
 
+    const ternary = () => {
+        if (props.UserStore.room.queue && props.UserStore.room.queue[0]) {
+            props.UserStore.changeCurrVideoId(props.UserStore.sortQueue[0].id)
+            return <Video />
+        } else {
+            return "Add A Song :)"
+        }
+    }
+
     return (
         <div id="sideMenu" >
             <div id="sideMenuHeader">
@@ -38,7 +47,8 @@ function SideMenu(props) {
                     <p>{props.UserStore.room.description}</p>
                 </div>
             </div>
-            {props.UserStore.room.queue ? (props.UserStore.room.queue[0] ? (props.UserStore.currVidId = props.UserStore.sortQueue[0].id, <Video />) : "Add A Song :)") : "Add A Song :)"}
+            {ternary()}
+            {/* {props.UserStore.room.queue ? (props.UserStore.room.queue[0] ? (props.UserStore.changeCurrVideoId(props.UserStore.sortQueue[0].id), <Video />) : "Add A Song :)") : "Add A Song :)"} */}
             <Playlist />
             <TextField
                 required label="Suggest Song"

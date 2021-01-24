@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const api = require('./server/routes/api');
 const Room = require('./server/models/Room.js');
 const PORT = process.env.PORT || 4200;
-const URI = process.env.MONGODB_URI || 'mongodb://localhost/roomsDB';
+const URI = process.env.MONGODB_URI || 'mongodb://localhost/PAU_DB';
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
@@ -16,7 +16,7 @@ const io = require('socket.io')(server, {
 });
 
 const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH
-	, ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
+	, ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, BLAHBLAH, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
 	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM } = require('./src/Constants');
 
 
@@ -49,9 +49,7 @@ io.on('connection', function (socket) {
 		await socket.join(data.room);
 		current_room = data.room;
 		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
-		// if (socket.id !== room.host) {
-			socket.emit(ASK_FOR_VIDEO_INFORMATION, data) 
-		// }
+		socket.to(data.room).emit(ASK_FOR_VIDEO_INFORMATION, socket.id)
 	});
 
 	socket.on(LEAVE_ROOM, () => {
@@ -87,7 +85,8 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on(SYNC_VIDEO_INFORMATION, (data) => {
-		io.to(data.room).emit(SYNC_VIDEO_INFORMATION, data);
+		console.log(data)
+		io.to(data.socket).emit(SYNC_VIDEO_INFORMATION, data); //io
 	});
 
 	socket.on(MOVE_PLAYER, (data) => {

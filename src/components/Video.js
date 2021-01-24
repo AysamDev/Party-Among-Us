@@ -1,11 +1,16 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
-import { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION } from '../Constants';
+import { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, ASK_FOR_VIDEO_INFORMATION, BLAHBLAH, SYNC_VIDEO_INFORMATION } from '../Constants';
 import { observer, inject } from 'mobx-react';
 
 const Video = observer((props) => {
 	const webSocket = useRef(props.UserStore.socket)
-	let { room, currVidId, vidPlayer, currentVidTime, removeSong, /* nextVidId, sortQueue*/ } = props.UserStore;
+	let { room, currVidId, vidPlayer, removeSong /*changeVidPlayer, /* nextVidId, sortQueue*/ } = props.UserStore;
+	// let currentVidTime = 0
+	//var vidPlayer
+
+	// const [open, setOpen] = useState(webSocket.current.id === room.host ? true : false)
+	// const [currTime, setCurrtime] = useState(0)
 
 	const opts = {
 		height: '220',
@@ -13,19 +18,34 @@ const Video = observer((props) => {
 		playerVars: {
 			controls: 2, //change to zero if we decide to remove control
 			autoplay: 1,
-			start: currentVidTime
+			//start: currentVidTime //80//currentVidTime
 		}
 	}
 
-	const onReady = (e) => {
-		vidPlayer = e.target;
+	const onReady = async (e) => {
+		//changeVidPlayer(e.target)
+		//await props.UserStore.changeVidPlayer(e.target)
+		vidPlayer = e.target
 		onSocketMethods();
 	}
 
+	// useEffect(() => {
+	// 	onSocketMethods();
+	// 	// setOpen(true)
+	// 	// if (webSocket.current.id === room.host) {
+
+	// 	// }
+	// }, [])
+
 	const onSocketMethods = () => {
 
-		webSocket.current.on(PLAY, () => {
-			vidPlayer.playVideo();
+		//let currentVidTime = 0
+
+		webSocket.current.on(PLAY, (data) => {
+			//console.log('....')
+			syncTime(data.currentTime);
+			//vidPlayer.seekTo(data.currentTime, false)
+			vidPlayer.playVideo();   // currentTime: vidPlayer.getCurrentTime(),
 		});
 
 		webSocket.current.on(PAUSE, () => {
@@ -33,53 +53,57 @@ const Video = observer((props) => {
 		});
 
 		webSocket.current.on(SYNC_TIME, (data) => {
-			syncTime(data.currentTime);
+			console.log(data.currentTime)
+			if (webSocket.current.id === room.host) {
+				syncTime(data.currentTime);
+			}
 		})
 
 		webSocket.current.on(NEW_VIDEO, (data) => {
 			vidPlayer.loadVideoById({ videoId: data.vidId });
 		});
 
-		webSocket.current.on(ASK_FOR_VIDEO_INFORMATION, () => {
-			const videoData = {
-				currVidId: currVidId,
-				vidPlayer: vidPlayer,
-				currentVidTime: vidPlayer.getCurrentTime(),
-				socket: webSocket.current.id,
-				room: props.UserStore.room
-			}
-			// const data = {
-			// 	vidId: currVidId,
-			// 	currentTime: vidPlayer.getCurrentTime(),
-			// 	room: room._id
-			// }
-			// if (webSocket.current.id === room.host) {
-				webSocket.current.emit(SYNC_VIDEO_INFORMATION, videoData);
-			// } else {
-			// if (webSocket.current.id !== room.host) {
-				webSocket.current.on(SYNC_VIDEO_INFORMATION, (data) => {
-					//room = data.room
-					vidPlayer.loadVideoById({
-						videoId: data.currVidId,
-						startSeconds: data.currentVidTime,
-					});
-				});
-			// }
+		webSocket.current.on(SYNC_VIDEO_INFORMATION, (data) => {
+			console.log('SYNC_VIDEO_INFORMATION')
+			//setOpen(true)
+			console.log('SYNC_VIDEO_INFORMATION')
+			vidPlayer.loadVideoById({
+				videoId: data.videoId,
+				startSeconds: data.currentTime,
+			});
 		});
+
+		webSocket.current.on(ASK_FOR_VIDEO_INFORMATION, (socketID) => {
+			//consol.log('ONASK_FOR_VIDEO_INFORMATION')
+			if (webSocket.current.id !== room.host) {
+				//currentVidTime = (vidPlayer.getCurrentTime())
+				// console.log('socketID')
+				// console.log(socketID)
+				// console.log(room.host)
+				webSocket.current.emit(SYNC_VIDEO_INFORMATION, { currentTime: vidPlayer.getCurrentTime(), socket: socketID, videoId: currVidId });
+				console.log('ASKFORVIDINFO')
+				// console.log(vidPlayer.getCurrentTime())
+			}
+		})
+
+
 	}
 
 	const syncTime = (currentTime) => {
-		if (vidPlayer.getCurrentTime() < currentTime - 0.5 || vidPlayer.getCurrentTime() > currentTime + 0.5) {
-			vidPlayer.seekTo(currentTime);
-			vidPlayer.playVideo();
-			console.log(currentTime)
-		}
+		// if (webSocket.current.id !== room.host) {
+			if (vidPlayer.getCurrentTime() < currentTime - 0.5 || vidPlayer.getCurrentTime() > currentTime + 0.5) {
+				vidPlayer.seekTo(currentTime);
+				vidPlayer.playVideo();
+				//console.log(currentTime)
+			}
+		// }
 	}
 
 	const onStateChanged = (e) => {
 		switch (vidPlayer.getPlayerState()) {
 			case -1:
-				webSocket.current.emit(PLAY, { room: room._id });
+				console.log('-1')
+				webSocket.current.emit(PLAY, { currentTime: vidPlayer.getCurrentTime(), room: room._id }); // 
 				break;
 			case 0:
 				// if (webSocket.current.id === room.host) {
@@ -105,14 +129,20 @@ const Video = observer((props) => {
 				// }
 				break;
 			case 1:
+				console.log('1')
 				webSocket.current.emit(SYNC_TIME, { currentTime: vidPlayer.getCurrentTime(), room: room._id });
 				webSocket.current.emit(PLAY, { room: room._id });
 				break;
 			case 2:
+				console.log('2')
 				webSocket.current.emit(PAUSE, { room: room._id });
 				break;
 			case 3:
+				console.log('3')
 				webSocket.current.emit(SYNC_TIME, { currentTime: vidPlayer.getCurrentTime(), room: room._id });
+				break;
+			case 5:
+				console.log('5')
 				break;
 			default:
 				break;
