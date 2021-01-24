@@ -19,7 +19,7 @@ module.exports = {
   VOTE_SONG: 'VOTE_SONG',
   REMOVE_PLAYER: 'REMOVE_PLAYER',
   NEW_PLAYER_HOST: 'NEW_PLAYER_HOST',
-  SERVER_PATH: 'ec2-18-203-137-8.eu-west-1.compute.amazonaws.com',
+  SERVER_PATH: process.env.SERVER_URI ? `${process.env.SERVER_URI}:${process.env.PORT}` : 'http://localhost:4200',
   CHANGE_THEME: 'CHANGE_THEME',
   DEFAULT_PLAYER_POS: { x: 815, y: 487}
 }

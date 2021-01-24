@@ -3,7 +3,7 @@ import { TextField } from '@material-ui/core';
 import Playlist from './Playlist';
 import { observer, inject } from 'mobx-react';
 import SuggestSong from './SuggestSong';
-import Video from './Video'
+import Video from './Video';
 import axios from 'axios';
 
 function SideMenu(props) {
