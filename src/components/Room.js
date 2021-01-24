@@ -23,7 +23,7 @@ function Room(props) {
         const roomID = url[2];
         await props.UserStore.getRooms();
         const room = props.UserStore.rooms.find(r => r._id === roomID);
-        
+
         if (url.length > 3 && url[3] === 'host') {
             setOpen(false);
             return;

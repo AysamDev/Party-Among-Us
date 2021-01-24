@@ -3,12 +3,10 @@ import Sprite from './Sprite.js';
 export default class Player extends Sprite {
     static ANIMATION_TYPE = { IDLE: 0, WALK: 1, DANCE: 4, SPAWN: 5 };
     static DIRECTION = { RIGHT: 0, LEFT: 2 };
-    static PLAYER_SIZE = {width: 85, height: 85};
+    static PLAYER_SIZE = { width: 85, height: 85 };
     static SOUNDS = {
         "message": new Audio('./sounds/message.wav'),
-        "spawn": new Audio('./sounds/spawn.wav'),
-        "disconnect": new Audio('./sounds/disconnect.wav'),
-        "vote": new Audio('./sounds/vote.wav')
+        "spawn": new Audio('./sounds/spawn.wav')
     };
 
     constructor(playerProps, context, image) {

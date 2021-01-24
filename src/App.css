@@ -66,6 +66,7 @@
 .roomResult {
 	text-align: center;
 	background-color: rgb(245, 197, 204);
+	cursor: pointer;
 }
 .roomResult img {
 	width : 100%;
