@@ -1,7 +1,8 @@
 import { makeObservable, observable, action, computed} from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
-import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH } from '../Constants';
+import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SYNC_TIME, HOST_SYNC_TIME,
+     SERVER_PATH, VIDEO_INFORMATION_NEW, ASK_FOR_VIDEO_INFORMATION, PLAY_SONG } from '../Constants';
 const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
 
 export class UserStore {
@@ -75,7 +76,11 @@ export class UserStore {
             addLike: action,
             deleteRoom: action,
             listenToSocket: action,
-            sortQueue: computed
+            sortQueue: computed,
+            setCurrVid: action,
+            setVidPlayer: action,
+            setCurrVidTime: action,
+            spliceSong: action,
         });
         this.listenToSocket();
     }
@@ -84,6 +89,9 @@ export class UserStore {
         this.socket.on(NEW_SONG, (data) => {
             const {id, song} = data;
             this.room.queue.push({id, song, votes: 1});
+            if(this.socket.id === this.room.host && !this.currVidId ){
+                this.setCurrVidTime(1)
+            }
         })
 
         this.socket.on(VOTE_SONG, (data) => {
@@ -91,6 +99,48 @@ export class UserStore {
             this.room.queue.find(q => q.id === songID).votes += value;
         })
 
+        this.socket.on(VIDEO_INFORMATION_NEW, (data) => {
+            this.setCurrVid(data.currVidId)
+            this.setCurrVidTime(data.time)
+            setTimeout(() => {
+                this.socket.emit(HOST_SYNC_TIME, this.room.host)
+            }, 6000);
+        })
+
+        this.socket.on(ASK_FOR_VIDEO_INFORMATION, (data) => {
+			const objectData = {
+				socket: data,
+				currVidId: this.currVidId,
+				time: this.vidPlayer && this.vidPlayer.getCurrentTime()
+            }
+            console.log('this will come only to host')
+            console.log(objectData);
+			this.socket.emit(VIDEO_INFORMATION_NEW, objectData)
+        })
+        
+        this.socket.on(PLAY_SONG, (data) => {
+            console.log('this not come to host')
+            this.spliceSong(data.song)
+            this.setCurrVid(data.song)
+            this.setCurrVidTime(data.time)
+        })
+
+        this.socket.on(SYNC_TIME, (data) => {
+            if(this.vidPlayer){
+                console.log('sync here to all')
+                this.vidPlayer.seekTo(data, true)
+            }
+        })
+
+        this.socket.on(HOST_SYNC_TIME, ()=>{
+            if(this.vidPlayer){
+                console.log('host sync time on ')
+                this.socket.emit(SYNC_TIME, { 
+                    currentTime: this.vidPlayer.getCurrentTime(), 
+                    room: this.room._id 
+                })
+            }
+        })
     }
 
     async getRooms() {
@@ -209,8 +259,9 @@ export class UserStore {
 
     async removeSong(vidId){
         try {
+            console.log('only host will enter')
             this.room = (await axios.delete(`${SERVER_URL}/delete/${this.room._id}/${vidId}/queue`)).data;
-            this.room.splice(0, 1);
+            // this.room.splice(0, 1);
         } catch (error) {
             console.log(error);
         }
@@ -231,10 +282,28 @@ export class UserStore {
                     x: this.player_x,
                     y: this.player_y,
                     theme: this.room.theme
-                }
+                },
+                host: this.room.host
             })
         } catch (error) {
             console.log(error);
         }
+    }
+    
+    setCurrVid(vidId) {
+        this.currVidId = vidId
+    }
+
+    setVidPlayer(vidPlayer){
+        this.vidPlayer = vidPlayer
+    }
+
+    setCurrVidTime(time){
+        this.currentVidTime = time
+    }
+
+    spliceSong(songID){
+        const index = this.room.queue.findIndex(q => q.id === songID)
+        index >= 0 && this.room.queue.splice(index, 1)
     }
 }

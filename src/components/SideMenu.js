@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextField } from '@material-ui/core';
 import Playlist from './Playlist';
 import { observer, inject } from 'mobx-react';
 import SuggestSong from './SuggestSong';
 import Video from './Video'
 import axios from 'axios';
+import {PLAY_SONG, SYNC_TIME} from '../Constants';
 require('dotenv').config();
 
 function SideMenu(props) {
@@ -12,6 +13,9 @@ function SideMenu(props) {
     const [song, setSong] = useState("");
     const [openSuggest, setOpenSuggest] = useState(false);
     const [items, setItems] = useState([]);
+    const [videoComp, setVideoComp] = useState(null)
+
+    const {sortQueue, currVidId, socket, room, currentVidTime } = props.UserStore
 
     const search = async (event) => {
         if (event.key === 'Enter') {
@@ -26,6 +30,50 @@ function SideMenu(props) {
         }
     }
 
+    const getNextVideoID = () => {
+        return props.UserStore.room.queue.reduce((max, q)=> {
+            max = q.votes > max.votes ? q : max
+            return max
+        }, {votes: 0}).id
+    }
+
+    useEffect(() => {
+        const playVid = async () => {//return and assign currentVidId when on socket and also assign a starting point for non host users
+            if(socket.id === room.host && !currVidId && sortQueue.length){
+                const vidId = getNextVideoID()
+                console.log('sortQueue at index 0')
+                console.log(vidId)
+                const data = {
+                    room: room._id,
+                    song: vidId,
+                    time: 0
+                }
+                await props.UserStore.removeSong(vidId)
+                socket.emit(PLAY_SONG, data)
+                
+                const timer = setInterval(() => {
+                    if(props.UserStore.vidPlayer){
+                        setTimeout(() => {
+                            props.UserStore.socket.emit(SYNC_TIME, { 
+                                currentTime: props.UserStore.vidPlayer.getCurrentTime(), 
+                                room: props.UserStore.room._id 
+                            })
+                            console.log('emit after new song played')
+                        }, 7000);
+                        clearInterval(timer)
+                    }
+                }, 2000);
+
+                props.UserStore.setCurrVid(vidId)
+                setVideoComp(<Video videoId={vidId} start={0} />)
+            }else if(currVidId && currVidId != sortQueue[0]){
+                setVideoComp(<Video videoId={currVidId} start={currentVidTime}/>) 
+            }
+        }
+        playVid()
+    }, [room, sortQueue, currentVidTime, currVidId])
+
+
     return (
         <div id="sideMenu" >
             <div id="sideMenuHeader">
@@ -38,8 +86,7 @@ function SideMenu(props) {
                     <p>{props.UserStore.room.description}</p>
                 </div>
             </div>
-            {props.UserStore.sortQueue[0] ? (props.UserStore.currVidId = props.UserStore.sortQueue[0].id, <Video />) : "Add A Song :)"}
-            <Playlist />
+            {videoComp}
             <TextField
                 required label="Suggest Song"
                 value={song}
@@ -48,6 +95,7 @@ function SideMenu(props) {
                 onKeyPress={search}
                 onChange={({ target }) => setSong(target.value)}
             />
+            <Playlist />
             {items.length && openSuggest ? <SuggestSong items={items} openSuggest={setOpenSuggest} /> : null}
         </div>
     )

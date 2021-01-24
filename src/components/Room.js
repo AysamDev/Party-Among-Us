@@ -16,7 +16,9 @@ function Room(props) {
     checkHost = () => props.UserStore.socket.id === props.UserStore.room.host;
     let history = useHistory();
 
-    useEffect(() => {checkValidity()}, []);
+    useEffect(() => {
+        checkValidity()
+    }, []);
 
     const checkValidity = async () => {
         const url = location.pathname.split('/');
@@ -38,10 +40,11 @@ function Room(props) {
                 setOpen(true);
             }
         }
-        else if (!room)
+        else if (!room){
             setAlert({value: true, text: "The room is not found!"});
-        else
+        }else{
             setAlert({value: true, text: "The room is full!"});
+        }
     }
 
     const deleteRoom = async () => {
