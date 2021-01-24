@@ -5,7 +5,6 @@ import { observer, inject } from 'mobx-react';
 import SuggestSong from './SuggestSong';
 import Video from './Video'
 import axios from 'axios';
-require('dotenv').config();
 
 function SideMenu(props) {
     const { src } = props.UserStore.avatar;

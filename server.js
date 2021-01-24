@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require('express'),
 mongoose = require('mongoose'),
 api = require('./server/routes/api'),
 Room = require('./server/models/Room.js'),
 path = require('path'),
-PORT = process.env.PORT || 4200,
-URI = process.env.MONGODB_URI || 'mongodb://localhost/AUP_DB',
+PORT = process.env.PORT || 80,
+URI = process.env.MONGODB_URI || 'mongodb://localhost/PAU_DB',
 app = express(),
 server = require('http').createServer(app),
 { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH

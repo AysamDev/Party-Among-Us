@@ -19,7 +19,7 @@ module.exports = {
   VOTE_SONG: 'VOTE_SONG',
   REMOVE_PLAYER: 'REMOVE_PLAYER',
   NEW_PLAYER_HOST: 'NEW_PLAYER_HOST',
-  SERVER_PATH: 'http://ec2-34-241-51-49.eu-west-1.compute.amazonaws.com:4200',
+  SERVER_PATH: 'ec2-18-203-137-8.eu-west-1.compute.amazonaws.com',
   CHANGE_THEME: 'CHANGE_THEME',
   DEFAULT_PLAYER_POS: { x: 815, y: 487}
 }
