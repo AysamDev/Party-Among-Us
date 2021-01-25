@@ -167,10 +167,7 @@ export class UserStore {
     }
 
     get sortQueue() {
-        if (this.room.queue)
-            return [...this.room.queue].sort(this.compareSongs);
-        else
-            return 0;
+        return [...this.room.queue].sort(this.compareSongs);
     }
 
     getTop10() {
