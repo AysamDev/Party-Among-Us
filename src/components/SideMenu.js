@@ -52,12 +52,12 @@ function SideMenu(props) {
                 socket.emit(PLAY_SONG, data)
                 props.UserStore.setCurrVid(vidId)
                 setVideoComp(<Video videoId={vidId} start={0} />)
-                setTimeout(() => {
-                    props.UserStore.socket.emit(SYNC_TIME, { 
-                        currentTime: props.UserStore.vidPlayer.getCurrentTime(), 
-                        room: props.UserStore.room._id 
-                    })
-                }, 7000);
+                // setTimeout(() => {
+                //     props.UserStore.socket.emit(SYNC_TIME, { 
+                //         currentTime: props.UserStore.vidPlayer.getCurrentTime(), 
+                //         room: props.UserStore.room._id 
+                //     })
+                // }, 10000);
                 await props.UserStore.removeSong(vidId)
             }else if(currVidId && currVidId != sortQueue[0]){
                 setVideoComp(<Video videoId={currVidId} start={currentVidTime}/>) 

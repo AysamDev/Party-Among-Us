@@ -116,7 +116,7 @@ io.on('connection', function (socket) {
 		socket.to(data.room).emit(PLAY_SONG, data)
 	})
 
-	socket.on(HOST_SYNC_TIME, (data)=> {//only sent to host
+	socket.on(HOST_SYNC_TIME, (data)=> {//only sent to host with the host info
 		io.to(data).emit(HOST_SYNC_TIME)
 	})
 });

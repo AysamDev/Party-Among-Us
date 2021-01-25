@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import YouTube from 'react-youtube';
-import { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, ASK_FOR_VIDEO_INFORMATION, VIDEO_INFORMATION_NEW , SYNC_VIDEO_INFORMATION } from '../Constants';
+import { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, ASK_FOR_VIDEO_INFORMATION, VIDEO_INFORMATION_NEW , SYNC_VIDEO_INFORMATION, HOST_SYNC_TIME } from '../Constants';
 import { observer, inject } from 'mobx-react';
 
 const Video = observer((props) => {
@@ -104,11 +104,23 @@ const Video = observer((props) => {
 		if(!props.UserStore.vidPlayer){
 			props.UserStore.setVidPlayer(event.target)
 		}
+		// if(props.start){
+		// 	props.UserStore.socket.emit(HOST_SYNC_TIME, props.UserStore.room.host)
+		// }
+		if(props.UserStore.socket.id === props.UserStore.room.host){
+			props.UserStore.socket.emit(SYNC_TIME, { 
+				currentTime: props.UserStore.vidPlayer.getCurrentTime(), 
+				room: props.UserStore.room._id 
+			})
+		}
 	}
 
 	const onStateChanged = (event) => {
 		if(!props.UserStore.vidPlayer){
 			props.UserStore.setVidPlayer(event.target)
+		}
+		if(event.data === 5 && props.start){
+			props.UserStore.socket.emit(HOST_SYNC_TIME, props.UserStore.room.host)
 		}
 	}
 

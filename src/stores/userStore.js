@@ -102,10 +102,10 @@ export class UserStore {
         this.socket.on(VIDEO_INFORMATION_NEW, (data) => {
             this.setCurrVid(data.currVidId)
             this.setCurrVidTime(data.time)
-            setTimeout(() => {
-                console.log('here emitted to sync when info arrive')
-                this.socket.emit(HOST_SYNC_TIME, this.room.host)
-            }, 6000);
+            // setTimeout(() => {
+            //     console.log('here emitted to sync when info arrive')
+            //     this.socket.emit(HOST_SYNC_TIME, this.room.host)
+            // }, 6000);
         })
 
         this.socket.on(ASK_FOR_VIDEO_INFORMATION, (data) => {
@@ -114,8 +114,6 @@ export class UserStore {
 				currVidId: this.currVidId,
 				time: this.vidPlayer && this.vidPlayer.getCurrentTime()
             }
-            console.log('this will come only to host')
-            console.log(objectData);
 			this.socket.emit(VIDEO_INFORMATION_NEW, objectData)
         })
         
@@ -137,7 +135,7 @@ export class UserStore {
             if(this.vidPlayer){
                 console.log('host sync time on ')
                 this.socket.emit(SYNC_TIME, { 
-                    currentTime: this.vidPlayer.getCurrentTime(), 
+                    currentTime: Math.ceil(this.vidPlayer.getCurrentTime()), 
                     room: this.room._id 
                 })
             }
