@@ -59,9 +59,8 @@ const Board = observer((props) => {
                 room: room._id
             });
         }
-        else {
+        else
             setAlert({value: true, text: CONNECTION_ERROR});
-        }
     }
 
     const onSelectTheme = (e) => {
@@ -81,16 +80,14 @@ const Board = observer((props) => {
                 room: room._id
             });
         }
-        else {
+        else
             setAlert({value: true, text: CONNECTION_ERROR});
-        }
     }
 
     const onCanvasClick = (e) => {
         const rect = canvasRef.current.getBoundingClientRect();
         let x = Math.floor(e.clientX - rect.left);
         let y = Math.floor(e.clientY - rect.top);
-
         const playerId = webSocket.current.id;
 
         if (playerIndex(playerId) !== -1) {
@@ -106,12 +103,10 @@ const Board = observer((props) => {
                 y: y,
                 room: room._id
             });
-
             boardRef.current.PLAYERS[playerIndex(playerId)].targetPos = { x, y };
         }
-        else {
+        else
             setAlert({value: true, text: CONNECTION_ERROR});
-        }
     }
 
     useEffect(() => {
@@ -153,9 +148,8 @@ const Board = observer((props) => {
                 y: data.y,
                 theme: data.theme
             });
-            if (webSocket.current.id === room.host) {
+            if (webSocket.current.id === room.host)
                 webSocket.current.emit(NEW_PLAYER_HOST, {players: boardRef.current.PLAYERS, socket: data.playerId});
-            }
         });
 
         webSocket.current.on(PLAYER_MOVED, (data) => {
@@ -200,7 +194,7 @@ const Board = observer((props) => {
                     <Select options={themeOptions} placeholder="Select a theme" onChange={onSelectTheme} name="select_theme" color="secondary" />
                 </FormControl>
             }
-            {alert.value && <Alert text={alert.text} />}
+            { alert.value && <Alert text={alert.text} />}
         </div>
     )
 })

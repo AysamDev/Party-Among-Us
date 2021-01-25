@@ -1,10 +1,9 @@
 import { makeObservable, observable, action, computed} from 'mobx';
 import axios from 'axios';
 import io from "socket.io-client";
-import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH, DEFAULT_PLAYER_POS, CHANGE_THEME } from '../Constants';
+import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SYNC_TIME, HOST_SYNC_TIME,
+        SERVER_PATH, VIDEO_INFORMATION_NEW, ASK_FOR_VIDEO_INFORMATION, PLAY_SONG, DEFAULT_PLAYER_POS, CHANGE_THEME } from '../Constants';
 const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
-
-console.log(SERVER_URL);
 
 export class UserStore {
     constructor() {
@@ -77,29 +76,70 @@ export class UserStore {
             addLike: action,
             deleteRoom: action,
             listenToSocket: action,
-            sortQueue: computed
+            sortQueue: computed,
+            setCurrVid: action,
+            setVidPlayer: action,
+            setCurrVidTime: action,
+            spliceSong: action,
         });
         this.listenToSocket();
     }
 
-    listenToSocket(){
+    listenToSocket() {
         this.socket.on(NEW_SONG, (data) => {
             const {id, song} = data;
             this.room.queue.push({id, song, votes: 1});
-        })
+            if (this.socket.id === this.room.host && !this.currVidId )
+                this.setCurrVidTime(1);
+        });
 
         this.socket.on(VOTE_SONG, (data) => {
             const {songID, value} = data;
             this.room.queue.find(q => q.id === songID).votes += value;
-        })
+        });
 
+        this.socket.on(VIDEO_INFORMATION_NEW, (data) => {
+            this.setCurrVid(data.currVidId);
+            this.setCurrVidTime(data.time);
+            setTimeout(() => { this.socket.emit(HOST_SYNC_TIME, this.room.host) }, 6000);
+        });
+
+        this.socket.on(ASK_FOR_VIDEO_INFORMATION, (data) => {
+			const objectData = {
+				socket: data,
+				currVidId: this.currVidId,
+				time: this.vidPlayer && this.vidPlayer.getCurrentTime()
+            }
+			this.socket.emit(VIDEO_INFORMATION_NEW, objectData);
+        });
+
+        this.socket.on(PLAY_SONG, (data) => {
+            this.spliceSong(data.song);
+            this.setCurrVid(data.song);
+            this.setCurrVidTime(data.time);
+        });
+
+        this.socket.on(SYNC_TIME, (data) => {
+            if (this.vidPlayer)
+                this.vidPlayer.seekTo(data, true);
+        });
+
+        this.socket.on(HOST_SYNC_TIME, ()=>{
+            if (this.vidPlayer) {
+                this.socket.emit(SYNC_TIME, {
+                    currentTime: this.vidPlayer.getCurrentTime(),
+                    room: this.room._id
+                });
+            }
+        });
     }
 
     async getRooms() {
         try {
             const result = (await axios.get(`${SERVER_URL}/rooms`)).data;
             this.rooms = result;
-        } catch (error) {
+        }
+        catch (error) {
             return error;
         }
     }
@@ -117,18 +157,20 @@ export class UserStore {
             return 0;
     }
 
-    compareSongs(a, b){
-        if (a.votes > b.votes) {
+    compareSongs(a, b) {
+        if (a.votes > b.votes)
             return -1;
-        } else if (a.votes < b.votes) {
+        else if (a.votes < b.votes)
             return 1;
-        } else {
+        else
             return 0;
-        }
     }
 
-    get sortQueue(){
-        return [...this.room.queue].sort(this.compareSongs);
+    get sortQueue() {
+        if (this.room.queue)
+            return [...this.room.queue].sort(this.compareSongs);
+        else
+            return 0;
     }
 
     getTop10() {
@@ -157,7 +199,8 @@ export class UserStore {
             const room = { roomName, guests, roomPassword, host, description, tags, queue: [], theme, hostPassword, size: 10 };
             this.room = (await axios.post(`${SERVER_URL}/room`, room)).data;
             this.socket.emit(JOIN_ROOM, { room: this.room._id });
-        } catch (error) {
+        }
+        catch (error) {
             console.log(error);
         }
     }
@@ -166,7 +209,8 @@ export class UserStore {
         try {
             const result = (await axios.get(`${SERVER_URL}/room/${id}`)).data;
             this.room = result;
-        } catch (error) {
+        }
+        catch (error) {
             console.log(error);
         }
     }
@@ -209,11 +253,11 @@ export class UserStore {
         }
     }
 
-    async removeSong(vidId){
+    async removeSong(vidId) {
         try {
             this.room = (await axios.delete(`${SERVER_URL}/delete/${this.room._id}/${vidId}/queue`)).data;
-            this.room.splice(0, 1);
-        } catch (error) {
+        }
+        catch (error) {
             console.log(error);
         }
     }
@@ -233,9 +277,11 @@ export class UserStore {
                     x: this.player_x,
                     y: this.player_y,
                     theme: this.room.theme
-                }
-            })
-        } catch (error) {
+                },
+                host: this.room.host
+            });
+        }
+        catch (error) {
             console.log(error);
         }
     }
@@ -250,8 +296,26 @@ export class UserStore {
                     theme: themeNum
                 }
             });
-        } catch (error) {
+        }
+        catch (error) {
             console.log(error);
         }
+    }
+
+    setCurrVid(vidId) {
+        this.currVidId = vidId;
+    }
+
+    setVidPlayer(vidPlayer) {
+        this.vidPlayer = vidPlayer;
+    }
+
+    setCurrVidTime(time) {
+        this.currentVidTime = time;
+    }
+
+    spliceSong(songID) {
+        const index = this.room.queue.findIndex(q => q.id === songID);
+        index >= 0 && this.room.queue.splice(index, 1);
     }
 }

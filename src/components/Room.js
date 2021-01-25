@@ -16,11 +16,11 @@ function Room(props) {
     checkHost = () => props.UserStore.socket.id === props.UserStore.room.host;
     let history = useHistory();
 
-    useEffect(() => {checkValidity()}, []);
+    useEffect(() => { checkValidity(); }, []);
 
     const checkValidity = async () => {
-        const url = location.pathname.split('/');
-        const roomID = url[2];
+        const url = location.pathname.split('/'),
+        roomID = url[2];
         await props.UserStore.getRooms();
         const room = props.UserStore.rooms.find(r => r._id === roomID);
 
@@ -30,9 +30,8 @@ function Room(props) {
         }
 
         if (room && room.guests.length < room.size) {
-            if (room.roomPassword) {
+            if (room.roomPassword)
                 setPrompt(true);
-            }
             else {
                 props.UserStore.setRoom(room);
                 setOpen(true);

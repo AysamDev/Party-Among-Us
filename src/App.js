@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import './App.css';
 import Home from "./components/Home";
 import Room from "./components/Room";
@@ -10,9 +10,12 @@ function App() {
 		<div>
 			<Router>
 				<Header />
-				<Route path="/" exact render={() => <Home />} />
-				<Route exact path="/home" render={() => <Home />} />
-				<Route path="/room/:id" render={() => <Room />} />
+				<Switch>
+					<Route path="/" exact render={() => <Home />} />
+					<Route exact path="/home" render={() => <Home />} />
+					<Route path="/room/:id" render={() => <Room />} />
+					<Route render={() => <h2>Page not found!</h2>} />
+				</Switch>
 			</Router>
 		</div>
 	)
