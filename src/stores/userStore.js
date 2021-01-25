@@ -113,7 +113,7 @@ export class UserStore {
 			this.socket.emit(VIDEO_INFORMATION_NEW, objectData);
         });
 
-        this.socket.on(PLAY_SONG, (data) => {
+        this.socket.on(PLAY_SONG, async (data) => {
             this.spliceSong(data.song);
             this.setCurrVid(data.song);
             this.setCurrVidTime(data.time);

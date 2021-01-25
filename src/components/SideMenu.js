@@ -38,7 +38,7 @@ function SideMenu(props) {
         const playVid = async () => {
             //return and assign currentVidId when on socket and also assign a starting point for non host users
             if(socket.id === room.host && !currVidId && sortQueue.length) {
-                const vidId = getNextVideoID();
+                const vidId = getNextVideoID().slice();
                 const data = {
                     room: room._id,
                     song: vidId,
