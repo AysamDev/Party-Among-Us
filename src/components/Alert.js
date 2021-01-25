@@ -1,6 +1,6 @@
 import React from 'react';
-import {Button, Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
-import {useHistory} from "react-router-dom";
+import { Button, Modal, Backdrop, Fade, makeStyles } from '@material-ui/core';
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Alert(props) {
     const classes = useStyles(),
-    history = useHistory();
+        history = useHistory();
 
     const back = () => {
         history.push("/");
@@ -31,7 +31,7 @@ function Alert(props) {
             aria-labelledby="transition-modal-title"
             aria-describedby="transition-modal-description"
             className={classes.modal} open={true} closeAfterTransition
-            BackdropComponent={Backdrop} BackdropProps={{timeout: 500}}
+            BackdropComponent={Backdrop} BackdropProps={{ timeout: 500 }}
             onClose={back}
         >
             <Fade in={true}>

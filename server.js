@@ -1,13 +1,13 @@
 require('dotenv').config();
 const express = require('express'),
-mongoose = require('mongoose'),
-api = require('./server/routes/api'),
-Room = require('./server/models/Room.js'),
-path = require('path'),
-app = express(),
-PORT = process.env.REACT_APP_PORT,
-URI = process.env.REACT_APP_MONGODB_URI || 'mongodb://localhost/PAU_DB',
-server = require('http').createServer(app);
+	mongoose = require('mongoose'),
+	api = require('./server/routes/api'),
+	Room = require('./server/models/Room.js'),
+	path = require('path'),
+	app = express(),
+	PORT = process.env.REACT_APP_PORT,
+	URI = process.env.REACT_APP_MONGODB_URI || 'mongodb://localhost/PAU_DB',
+	server = require('http').createServer(app);
 
 const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH, VIDEO_INFORMATION_NEW,
 	ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG, PLAY_SONG, HOST_SYNC_TIME,
@@ -39,16 +39,16 @@ app.use(express.static('build'));
 app.use(API_PATH, api);
 
 app.get('/*', function (req, res) {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+	res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 mongoose.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 })
-.then(function () {
-	server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-})
-.catch(function (err) {
-	console.log(err.message);
-});
+	.then(function () {
+		server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+	})
+	.catch(function (err) {
+		console.log(err.message);
+	});
 
 io.on('connection', function (socket) {
 	let current_room;
@@ -64,13 +64,13 @@ io.on('connection', function (socket) {
 		data.player && socket.to(data.room).emit(CHANGE_THEME, data.player);
 	});
 
-	socket.on(LEAVE_ROOM, async() => {
+	socket.on(LEAVE_ROOM, async () => {
 		socket.to(current_room).emit(REMOVE_PLAYER, socket.id);
 		current_room = null;
 		await Room.findOneAndDelete({ host: socket.id });
 	});
 
-	socket.on('disconnect', async(data) => {
+	socket.on('disconnect', async (data) => {
 		if (current_room) {
 			socket.to(current_room).emit(REMOVE_PLAYER, socket.id);
 			await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
@@ -133,7 +133,7 @@ io.on('connection', function (socket) {
 		socket.to(data.room).emit(PLAY_SONG, data);
 	})
 
-	socket.on(HOST_SYNC_TIME, (data)=> {
+	socket.on(HOST_SYNC_TIME, (data) => {
 		//only send to host
 		io.to(data).emit(HOST_SYNC_TIME);
 	})

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Backdrop, Fade, makeStyles} from '@material-ui/core';
+import { Modal, Backdrop, Fade, makeStyles } from '@material-ui/core';
 import { observer, inject } from 'mobx-react';
 
 const useStyles = makeStyles((theme) => ({
@@ -20,13 +20,12 @@ const useStyles = makeStyles((theme) => ({
 
 function SuggestSong(props) {
     const [open, setOpen] = useState(true),
-    classes = useStyles();
+        classes = useStyles();
 
     const clickEvent = async (event) => {
-        const {id, innerHTML} = event.target;
+        const { id, innerHTML } = event.target;
         await props.UserStore.getRoom(props.UserStore.room._id);
         const ifPreviouslyAdded = props.UserStore.room.queue.find(q => q.id === id);
-
         ifPreviouslyAdded ? await props.UserStore.addLike(id) : await props.UserStore.suggestSong(id, innerHTML);
         handleClose();
     }
@@ -47,12 +46,12 @@ function SuggestSong(props) {
                 closeAfterTransition
                 BackdropComponent={Backdrop}
                 BackdropProps={{
-                timeout: 500,
+                    timeout: 500,
                 }}
             >
                 <Fade in={true}>
                     <div className={classes.paper} >
-                        {props.items.map(i => <div id={i.id} key={i.id} data-channel={i.channel} onClick={clickEvent} >{i.title}</div> )}
+                        {props.items.map(i => <div id={i.id} key={i.id} data-channel={i.channel} onClick={clickEvent} >{i.title}</div>)}
                     </div>
                 </Fade>
             </Modal>

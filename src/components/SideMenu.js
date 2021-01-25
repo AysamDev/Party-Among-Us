@@ -5,7 +5,7 @@ import { observer, inject } from 'mobx-react';
 import SuggestSong from './SuggestSong';
 import Video from './Video';
 import axios from 'axios';
-import { PLAY_SONG, SYNC_TIME } from '../Constants';
+import { PLAY_SONG } from '../Constants';
 
 function SideMenu(props) {
     const { src } = props.UserStore.avatar,
@@ -21,7 +21,6 @@ function SideMenu(props) {
             setItems(items.map(i => ({ title: i.snippet.title, id: i.id.videoId, channel: i.snippet.channelTitle.split(' ')[0] })));
             setOpenSuggest(true);
             setSong("");
-            // console.log(`https://www.youtube.com/watch?v=${i.id.videoId}&ab_channel=${i.snippet.channelTitle.split(' ')[0]}`)
         }
         else
             items.length && setItems([]);
@@ -36,7 +35,6 @@ function SideMenu(props) {
 
     useEffect(() => {
         const playVid = async () => {
-            //return and assign currentVidId when on socket and also assign a starting point for non host users
             if(socket.id === room.host && !currVidId && sortQueue.length) {
                 const vidId = getNextVideoID().slice();
                 const data = {
@@ -49,7 +47,7 @@ function SideMenu(props) {
                 setVideoComp(<Video videoId={vidId} start={0} />);
                 await props.UserStore.removeSong(vidId);
             }
-            else if (currVidId && currVidId != sortQueue[0]) {
+            else if (currVidId && currVidId !== sortQueue[0]) {
                 setVideoComp(<Video videoId={currVidId} start={currentVidTime}/>);
             }
         }

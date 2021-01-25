@@ -51,7 +51,7 @@ router.delete('/room/:roomID', async function (req, res) {
 
 router.put('/room/:roomID', async function (req, res) {
     try {
-        const {newVal, field} = req.body;
+        const { newVal, field } = req.body;
         const room = await Room.findOneAndUpdate({ _id: req.params.roomID }, { [field]: newVal }, { new: true });
         res.send(room);
     }
@@ -65,7 +65,7 @@ router.put('/add/:roomID/:field', async function (req, res) {
     const newObj = req.body;
     const { roomID, field } = req.params;
     try {
-        const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': {[field]: newObj} }, { new: true });
+        const room = await Room.findOneAndUpdate({ _id: roomID }, { '$push': { [field]: newObj } }, { new: true });
         res.send(room);
     }
     catch (error) {
@@ -88,11 +88,11 @@ router.delete('/delete/:roomID/:objectID/:field', async function (req, res) {
 });
 
 router.put('/vote/:roomID/:songID/:value', async (req, res) => {
-    let {roomID, songID, value} = req.params;
+    let { roomID, songID, value } = req.params;
     value = parseInt(value);
 
     try {
-        const room = await Room.findOneAndUpdate({ "_id":  roomID, "queue.id": songID}, {$inc: {"queue.$.votes": value } }, { new: true });
+        const room = await Room.findOneAndUpdate({ "_id": roomID, "queue.id": songID }, { $inc: { "queue.$.votes": value } }, { new: true });
         res.send(room);
     }
     catch (error) {
