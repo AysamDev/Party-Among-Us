@@ -4,12 +4,13 @@ mongoose = require('mongoose'),
 api = require('./server/routes/api'),
 Room = require('./server/models/Room.js'),
 path = require('path'),
-PORT = process.env.PORT || 4200,
-URI = process.env.MONGODB_URI || 'mongodb://localhost/PAU_DB',
 app = express(),
-server = require('http').createServer(app),
-{ PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH
-	,ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
+PORT = process.env.REACT_APP_PORT,
+URI = process.env.REACT_APP_MONGODB_URI || 'mongodb://localhost/PAU_DB',
+server = require('http').createServer(app);
+
+const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH,
+	ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
 	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM, CHANGE_THEME } = require('./src/Constants');
 
 const io = require('socket.io')(server, {
@@ -25,12 +26,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('node_modules'));
 
-app.use(function (req, res, next) {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-	next();
-});
+if (!process.env.production) {
+	app.use(function (req, res, next) {
+		res.header('Access-Control-Allow-Origin', '*');
+		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+		res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+		next();
+	});
+}
 
 app.use(express.static('build'));
 app.use(API_PATH, api);

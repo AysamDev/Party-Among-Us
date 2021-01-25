@@ -4,6 +4,8 @@ import io from "socket.io-client";
 import { JOIN_ROOM, LEAVE_ROOM, SUGGEST_SONG, NEW_SONG, VOTE_SONG, API_PATH, SERVER_PATH, DEFAULT_PLAYER_POS, CHANGE_THEME } from '../Constants';
 const SERVER_URL = `${SERVER_PATH}${API_PATH}`;
 
+console.log(SERVER_URL);
+
 export class UserStore {
     constructor() {
         this.socket = io(SERVER_PATH);
