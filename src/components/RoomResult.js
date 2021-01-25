@@ -12,9 +12,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function RoomResult(props) {
-    const { roomPassword, roomName, theme, guests, size, description, tags } = props.room;
+    const { roomPassword, roomName, theme, guests, size, description, tags } = props.room,
+    classes = useStyles();
     let history = useHistory();
-    const classes = useStyles();
 
     const openRoom = () => {
         props.UserStore.getRoom(props.id);

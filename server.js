@@ -9,8 +9,8 @@ PORT = process.env.REACT_APP_PORT,
 URI = process.env.REACT_APP_MONGODB_URI || 'mongodb://localhost/PAU_DB',
 server = require('http').createServer(app);
 
-const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH,
-	ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG,
+const { PLAY, PAUSE, SYNC_TIME, NEW_VIDEO, REMOVE_PLAYER, NEW_PLAYER_HOST, API_PATH, VIDEO_INFORMATION_NEW,
+	ASK_FOR_VIDEO_INFORMATION, SYNC_VIDEO_INFORMATION, NEW_SONG, SUGGEST_SONG, VOTE_SONG, PLAY_SONG, HOST_SYNC_TIME,
 	JOIN_ROOM, ADD_PLAYER, MOVE_PLAYER, SEND_MESSAGE, RECEIVED_MESSAGE, PLAYER_MOVED, LEAVE_ROOM, CHANGE_THEME } = require('./src/Constants');
 
 const io = require('socket.io')(server, {
@@ -19,7 +19,7 @@ const io = require('socket.io')(server, {
 		allowedHeaders: ["content-type"]
 	},
 	pingInterval: 10000,
-	pingTimeout: 5000
+	pingTimeout: 20000
 });
 
 app.use(express.json());
@@ -57,16 +57,17 @@ io.on('connection', function (socket) {
 		await socket.join(data.room);
 		current_room = data.room;
 		data.player && socket.to(data.room).emit(ADD_PLAYER, data.player);
-		socket.emit(ASK_FOR_VIDEO_INFORMATION, data);
+		data.host && io.to(data.host).emit(ASK_FOR_VIDEO_INFORMATION, data.player.playerId);
 	});
 
 	socket.on(CHANGE_THEME, async (data) => {
 		data.player && socket.to(data.room).emit(CHANGE_THEME, data.player);
 	});
 
-	socket.on(LEAVE_ROOM, () => {
+	socket.on(LEAVE_ROOM, async() => {
 		socket.to(current_room).emit(REMOVE_PLAYER, socket.id);
 		current_room = null;
+		await Room.findOneAndDelete({ host: socket.id });
 	});
 
 	socket.on('disconnect', async(data) => {
@@ -74,6 +75,7 @@ io.on('connection', function (socket) {
 			socket.to(current_room).emit(REMOVE_PLAYER, socket.id);
 			await Room.findOneAndUpdate({ _id: current_room }, { "$pull": { guests: { "id": socket.id } } });
 		}
+		await Room.findOneAndDelete({ host: socket.id });
 	});
 
 	socket.on(PLAY, () => {
@@ -84,8 +86,9 @@ io.on('connection', function (socket) {
 		socket.to(socket.room).emit(PAUSE);
 	});
 
-	socket.on(SYNC_TIME, (currentTime) => {
-		socket.to(socket.room).emit(SYNC_TIME, currentTime);
+	socket.on(SYNC_TIME, (data) => {
+		// send to all users in room including host (only host emit it)
+		io.in(data.room).emit(SYNC_TIME, data.currentTime);
 	});
 
 	socket.on(NEW_VIDEO, (videoURL) => {
@@ -118,5 +121,20 @@ io.on('connection', function (socket) {
 
 	socket.on(NEW_PLAYER_HOST, (data) => {
 		io.to(data.socket).emit(NEW_PLAYER_HOST, data.players);
+	})
+
+	socket.on(VIDEO_INFORMATION_NEW, (data) => {
+		//only host emit this to send to new member
+		io.to(data.socket).emit(VIDEO_INFORMATION_NEW, data);
+	})
+
+	socket.on(PLAY_SONG, (data) => {
+		//host emit it to all the room
+		socket.to(data.room).emit(PLAY_SONG, data);
+	})
+
+	socket.on(HOST_SYNC_TIME, (data)=> {
+		//only send to host
+		io.to(data).emit(HOST_SYNC_TIME);
 	})
 });

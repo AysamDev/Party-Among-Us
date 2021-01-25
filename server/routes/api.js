@@ -16,7 +16,6 @@ router.get('/rooms', async function (req, res) {
 
 router.get('/room/:roomID', async function (req, res) {
     try {
-        console.log(req.params.roomID);
         const id = ObjectId(req.params.roomID);
         const room = await Room.findById(id);
         res.send(room);
@@ -93,7 +92,7 @@ router.put('/vote/:roomID/:songID/:value', async (req, res) => {
     value = parseInt(value);
 
     try {
-        const room = await Room.findOneAndUpdate({ "_id": roomID, "queue.id" : songID}, {$inc : {"queue.$.votes" : value } }, { new: true });
+        const room = await Room.findOneAndUpdate({ "_id":  roomID, "queue.id": songID}, {$inc: {"queue.$.votes": value } }, { new: true });
         res.send(room);
     }
     catch (error) {
