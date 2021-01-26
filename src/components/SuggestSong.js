@@ -14,7 +14,8 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(4, 4, 4),
         display: 'grid',
-        gridGap: theme.spacing(2)
+        gridGap: theme.spacing(2),
+        borderRadius: 10
     }
 }));
 
@@ -45,13 +46,11 @@ function SuggestSong(props) {
                 onClose={handleClose}
                 closeAfterTransition
                 BackdropComponent={Backdrop}
-                BackdropProps={{
-                    timeout: 500,
-                }}
+                BackdropProps={{ timeout: 500 }}
             >
                 <Fade in={true}>
                     <div className={classes.paper} >
-                        {props.items.map(i => <div id={i.id} key={i.id} data-channel={i.channel} onClick={clickEvent} >{i.title}</div>)}
+                        {props.items.map(i => <div className="song_hover" id={i.id} key={i.id} data-channel={i.channel} onClick={clickEvent} >{i.title}</div>)}
                     </div>
                 </Fade>
             </Modal>

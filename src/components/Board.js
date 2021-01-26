@@ -1,9 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import BoardCanvas from './Board/BoardCanvas';
 import { Button } from '@material-ui/core';
-import FormControl from '@material-ui/core/FormControl';
 import Select from 'react-select';
-import InputLabel from '@material-ui/core/InputLabel';
+import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import InputEmoji from "react-input-emoji";
 import { observer, inject } from 'mobx-react';
@@ -13,18 +12,26 @@ import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     selectTheme: {
-        margin: theme.spacing(2),
-        minWidth: 150
+        marginTop: theme.spacing(1),
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1)
     },
-    chat: {
-        margin: theme.spacing(0.2),
-        width: 1000,
-        fontSize: 25,
-        alignItems: 'center'
-    },
-    btnDance: {
-        width: 120,
-        margin: theme.spacing(1)
+    btn: {
+        margin: theme.spacing(1),
+        width: 150,
+        color: 'white',
+        fontFamily: "'Acme', sans-serif",
+        fontSize: '100%',
+        letterSpacing: 2,
+        wordSpacing: 4,
+        backgroundColor: 'rgba(175,6,50,0.8)',
+        boxShadow: '2px 1px 1px 0px rgba(175,6,50,0.85)',
+        borderRadius: 10,
+        justifySelf: 'stretch',
+        '&:hover': {
+            backgroundColor: 'rgba(175,6,50,1)',
+            boxShadow: '3px 2px 2px 0px rgba(175,6,50,0.85)'
+        }
     }
 }));
 
@@ -44,6 +51,7 @@ const Board = observer((props) => {
     CONNECTION_ERROR = "Connection Error!",
     { enqueueSnackbar } = useSnackbar();
     let { room } = props.UserStore;
+    let history = useHistory();
 
     const playerIndex = (socket_id) => {
         const index = boardRef.current.PLAYERS.findIndex(p => p.playerId === socket_id);
@@ -178,21 +186,29 @@ const Board = observer((props) => {
         });
     }, []);
 
+    const deleteRoom = async () => {
+        props.UserStore.deleteRoom();
+        history.push("/");
+    }
+
     return (
         <div id="board">
             <canvas onMouseDown={onCanvasClick} ref={canvasRef} width="1000" height="632"></canvas>
             <br />
-            <FormControl className={classes.chat}>
-                <InputEmoji maxLength={31} ref={messageRef} onEnter={sendMessage} cleanOnEnter placeholder="Type a message (/dance to dance)" />
-                <Button type="button" onClick={doDance} className={classes.btnDance} variant="contained" color="secondary">Dance</Button>
-            </FormControl>
-            <br />
+            <div id="underboard">
+                <div>
+                    <InputEmoji maxLength={31} ref={messageRef} onEnter={sendMessage} cleanOnEnter placeholder="Type a message (/dance to dance)" />
+                </div>
+                <Button type="button" onClick={doDance} className={classes.btn}>Dance</Button>
+            </div>
             {
                 webSocket.current.id === room.host &&
-                <FormControl className={classes.selectTheme}>
-                    <InputLabel color="secondary">Select a theme:</InputLabel>
-                    <Select options={themeOptions} placeholder="Select a theme" onChange={onSelectTheme} name="select_theme" color="secondary" />
-                </FormControl>
+                <div id="host_power">
+                    <Select className={classes.selectTheme} options={themeOptions} placeholder="Select a theme" onChange={onSelectTheme} name="select_theme" color="secondary" />
+                    <Button className={classes.btn} onClick={deleteRoom} >
+                            Delete Room
+                    </Button>
+                </div>
             }
             { alert.value && <Alert text={alert.text} />}
         </div>

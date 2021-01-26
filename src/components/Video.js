@@ -7,7 +7,7 @@ const Video = observer((props) => {
 
 	const opts = {
 		height: '220',
-		width: '440',
+		width: '380',
 		playerVars: {
 			controls: 0,
 			autoplay: 1,
@@ -16,9 +16,8 @@ const Video = observer((props) => {
 	}
 
 	const onReady = (event) => {
-		if (!props.UserStore.vidPlayer) {
+		if (!props.UserStore.vidPlayer)
 			props.UserStore.setVidPlayer(event.target);
-		}
 
 		if (props.UserStore.socket.id === props.UserStore.room.host) {
 			props.UserStore.socket.emit(SYNC_TIME, {
@@ -29,18 +28,16 @@ const Video = observer((props) => {
 	}
 
 	const onStateChanged = (event) => {
-		if (!props.UserStore.vidPlayer) {
+		if (!props.UserStore.vidPlayer)
 			props.UserStore.setVidPlayer(event.target);
-		}
-		if (event.data === 5 && props.start) {
+
+		if (event.data === 5 && props.start)
 			props.UserStore.socket.emit(HOST_SYNC_TIME, props.UserStore.room.host);
-		}
 	}
 
 	const End = () => {
-		if (props.UserStore.socket.id === props.UserStore.room.host) {
+		if (props.UserStore.socket.id === props.UserStore.room.host)
 			props.UserStore.setCurrVid('');
-		}
 	}
 
 
