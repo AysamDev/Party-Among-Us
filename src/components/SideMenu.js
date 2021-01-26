@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { TextField } from '@material-ui/core';
 import Playlist from './Playlist';
 import { observer, inject } from 'mobx-react';
 import SuggestSong from './SuggestSong';
@@ -35,7 +34,7 @@ function SideMenu(props) {
 
     useEffect(() => {
         const playVid = async () => {
-            if(socket.id === room.host && !currVidId && sortQueue.length) {
+            if (socket.id === room.host && !currVidId && sortQueue.length) {
                 const vidId = getNextVideoID().slice();
                 const data = {
                     room: room._id,
@@ -47,30 +46,25 @@ function SideMenu(props) {
                 setVideoComp(<Video videoId={vidId} start={0} />);
                 await props.UserStore.removeSong(vidId);
             }
-            else if (currVidId && currVidId !== sortQueue[0]) {
+            else if (currVidId && currVidId !== sortQueue[0])
                 setVideoComp(<Video videoId={currVidId} start={currentVidTime}/>);
-            }
         }
         playVid();
-    }, [room, sortQueue, currentVidTime, currVidId])
+    }, [room, sortQueue, currentVidTime, currVidId]);
 
     return (
         <div id="sideMenu" >
             <div id="sideMenuHeader">
+                <h2>{props.UserStore.room.roomName}</h2>
                 <div id="avatarUser">
                     <img src={src} alt="avatar" />
                     <h3>{props.UserStore.userName}</h3>
                 </div>
-                <div id="roomNameDesc">
-                    <h2>{props.UserStore.room.roomName}</h2>
-                    <p>{props.UserStore.room.description}</p>
-                </div>
             </div>
             {videoComp}
-            <TextField
-                required label="Suggest Song"
+            <input type="text"
+                placeholder="Suggest Song"
                 value={song}
-                variant="outlined"
                 id="song"
                 onKeyPress={search}
                 onChange={({ target }) => setSong(target.value)}

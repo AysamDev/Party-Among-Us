@@ -7,7 +7,8 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
     chip: {
-        margin: theme.spacing(0.5)
+        margin: theme.spacing(0.5),
+        backgroundColor: '#b3b0a9'
     }
 }));
 
@@ -22,7 +23,7 @@ function RoomResult(props) {
     }
 
     return (
-        <div className="roomResult" onClick={openRoom} >
+        <div className="roomResult" onClick={openRoom}>
             <img src={`./img/theme${theme}.jpg`} alt="Theme" />
             <h3>{roomName}</h3>
             {tags.map((t, i) => <Chip label={t} key={i} className={classes.chip} />)}

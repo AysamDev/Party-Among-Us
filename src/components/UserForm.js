@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     modal: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     paper: {
         backgroundColor: theme.palette.background.paper,
@@ -20,7 +20,8 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(1, 4, 4),
         display: 'grid',
-        gridGap: theme.spacing(2)
+        gridGap: theme.spacing(2),
+        borderRadius: 10
     },
     grid: {
         textAlign: 'center'

@@ -14,11 +14,10 @@ function Song(props) {
     }
 
     return (
-        <div>
-            <h3>{song} <span>{votes}</span>
-            {(like ? <FavoriteIcon color="action" fontSize="large" style={{ color: red[500] }} onClick={likeSong} />
-                : <FavoriteBorderIcon color="action" fontSize="large" style={{ color: red[500] }} onClick={likeSong} />)}
-            </h3>
+        <div className="song_vote_icon">
+            <p className="song_playlist">{song}</p><p className="votes">{votes}</p>
+            {(like ? <FavoriteIcon color="action" fontSize="large" style={{ color: red[500], marginTop: 18 }} onClick={likeSong} />
+                : <FavoriteBorderIcon color="action" fontSize="large" style={{ color: red[500], marginTop: 18 }} onClick={likeSong} />)}
         </div>
     )
 }

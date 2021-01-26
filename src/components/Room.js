@@ -2,9 +2,8 @@ import React, {useState, useEffect} from 'react';
 import Board from './Board';
 import SideMenu from './SideMenu';
 import UserForm from './UserForm';
-import {useHistory, useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { observer, inject } from 'mobx-react';
-import {Button} from '@material-ui/core';
 import Alert from './Alert';
 import Prompt from './Prompt';
 
@@ -12,9 +11,7 @@ function Room(props) {
     const [open, setOpen] = useState(null),
     location = useLocation(),
     [alert, setAlert] = useState({value: false, text: ""}),
-    [prompt, setPrompt] = useState(false),
-    checkHost = () => props.UserStore.socket.id === props.UserStore.room.host;
-    let history = useHistory();
+    [prompt, setPrompt] = useState(false);
 
     useEffect(() => { checkValidity(); }, []);
 
@@ -43,11 +40,6 @@ function Room(props) {
             setAlert({value: true, text: "The room is full!"});
     }
 
-    const deleteRoom = async () => {
-        props.UserStore.deleteRoom();
-        history.push("/");
-    }
-
     return (
         <div id="room">
             {open && <UserForm open={setOpen} /> }
@@ -57,9 +49,6 @@ function Room(props) {
                 <div className="roomGrid">
                     <SideMenu />
                     <Board />
-                    {checkHost() && <Button variant="contained" color="secondary" onClick={deleteRoom} >
-                        Delete Room
-                    </Button>}
                 </div>
             )}
         </div>

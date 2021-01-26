@@ -18,10 +18,27 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 2),
         display: 'grid',
-        gridGap: theme.spacing(1)
+        gridGap: theme.spacing(1),
+        borderRadius: 10
     },
     grid: {
         textAlign: 'center'
+    },
+    btn: {
+        width: '100%',
+        justifySelf: 'end',
+        color: 'white',
+        fontFamily: "'Acme', sans-serif",
+        fontSize: '150%',
+        letterSpacing: 2,
+        wordSpacing: 4,
+        backgroundColor: 'rgba(175,6,50,1)',
+        boxShadow: '2px 1px 1px 0px rgba(175,6,50,1)',
+        borderRadius: 10,
+        '&:hover': {
+            backgroundColor: 'rgba(175,6,50,1)',
+            boxShadow: '3px 2px 2px 0px rgba(175,6,50,1)'
+        }
     }
 }));
 
@@ -52,7 +69,8 @@ function CreateRoom(props) {
     const createRoom = async () => {
         if (!roomName || !theme || !userName || !avatar ) {
             enqueueSnackbar('Missing Fields', { variant: 'error' });
-        } else {
+        }
+        else {
             await props.UserStore.createRoom(roomName, roomPassword, description, tags.map(t => t.label), theme, userName, avatar);
             history.push(`/room/${props.UserStore.room._id}/host`);
             handleClose();
@@ -127,7 +145,7 @@ function CreateRoom(props) {
                         <div id="avatarsImg" >
                             {props.UserStore.avatars.map(a => <AvatarOption key={a.name} avatar={a} setAvatar={setAvatar} create="create" />)}
                         </div>
-                        <Button variant="contained" color="secondary" onClick={createRoom} >
+                        <Button className={classes.btn} onClick={createRoom} >
                             Create Room
                         </Button>
                     </div>

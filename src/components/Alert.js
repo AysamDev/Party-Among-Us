@@ -14,7 +14,24 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(4, 4, 4),
         display: 'grid',
-        gridGap: theme.spacing(2)
+        gridGap: theme.spacing(2),
+        borderRadius: 10
+    },
+    btn: {
+        width: '100%',
+        justifySelf: 'end',
+        color: 'white',
+        fontFamily: "'Acme', sans-serif",
+        fontSize: '150%',
+        letterSpacing: 2,
+        wordSpacing: 4,
+        backgroundColor: 'rgba(175,6,50,1)',
+        boxShadow: '2px 1px 1px 0px rgba(175,6,50,1)',
+        borderRadius: 10,
+        '&:hover': {
+            backgroundColor: 'rgba(175,6,50,1)',
+            boxShadow: '3px 2px 2px 0px rgba(175,6,50,1)',
+        }
     }
 }));
 
@@ -37,7 +54,7 @@ function Alert(props) {
             <Fade in={true}>
                 <div className={classes.paper} >
                     <h2>{props.text}</h2>
-                    <Button variant="contained" color="secondary" onClick={back} >
+                    <Button className={classes.btn} onClick={back} >
                         OK
                     </Button>
                 </div>

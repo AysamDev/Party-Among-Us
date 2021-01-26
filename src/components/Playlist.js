@@ -4,7 +4,7 @@ import Song from './Song';
 
 function Playlist(props) {
     return (
-        <div>
+        <div id="songs_list">
             {props.UserStore.sortQueue.map((q, i) => <Song song={q} key={q._id}/>)}
         </div>
     )
